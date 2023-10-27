@@ -24,7 +24,7 @@ namespace CNPM_BE.Services
                 new Claim(ClaimTypes.Name,user.Username),
                 new Claim(ClaimTypes.Role,"Admin")
             };
-            
+            return null;
 
         }
     }

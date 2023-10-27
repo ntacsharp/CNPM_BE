@@ -19,24 +19,25 @@ namespace CNPM_BE.Controllers
         }
         [HttpPost]
         [ActionName("Login")]
-        public async Task<IActionResult<LoginResp>> Login(LoginReq req)
+        public async Task<IActionResult> Login(LoginReq req)
         {
-            var user = await _context.User.FirstOrDefaultAsync(u => u.Username == req.UsernameOrEmail || u.Email == req.UsernameOrEmail);
-            if (user == null)
-            {
-                return BadRequest("User not found!");
-            }
-            var isCorrect = await _userService.VerifyPassword(user, req);
-            if (!isCorrect)
-            {
-                return BadRequest("Wrong password!");
-            }
-            string token = await _userService.CreateToken(user);
-            return Ok(new LoginResp { Token = token });
+            //var user = await _context.User.FirstOrDefaultAsync(u => u.Username == req.UsernameOrEmail || u.Email == req.UsernameOrEmail);
+            //if (user == null)
+            //{
+            //    return BadRequest("User not found!");
+            //}
+            //var isCorrect = await _userService.VerifyPassword(user, req);
+            //if (!isCorrect)
+            //{
+            //    return BadRequest("Wrong password!");
+            //}
+            //string token = await _userService.CreateToken(user);
+            //return Ok(new LoginResp { Token = token });
             //if (user == null || !VerifyPassword(req.Password, user)
             //{
 
             //}
+            return BadRequest();
         }
     }
 }

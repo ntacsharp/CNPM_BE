@@ -41,7 +41,7 @@ namespace CNPM_BE
             services.AddRazorPages();
             services.AddDatabaseDeveloperPageExceptionFilter();
             services.AddAntiforgery(o => o.SuppressXFrameOptionsHeader = true);
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).
+            //services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).
         }
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
