@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -30,7 +31,7 @@ namespace CNPM_BE
         {
             var connectionString = Configuration.GetConnectionString("DefaultConnection");
             services.AddDbContext<CNPMDbContext>(options => options.UseNpgsql(connectionString));
-            
+
             services.Configure<ForwardedHeadersOptions>(options =>
             {
                 options.ForwardedHeaders =
@@ -41,8 +42,21 @@ namespace CNPM_BE
             services.AddRazorPages();
             services.AddDatabaseDeveloperPageExceptionFilter();
             services.AddAntiforgery(o => o.SuppressXFrameOptionsHeader = true);
-            //services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).
-        }
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = Configuration["Jwt:Issuer"],
+                    ValidAudience = Configuration["Jwt:Audience"],
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Jwt:Key"]))
+                };
+                //services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).
+            });
+        } 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
