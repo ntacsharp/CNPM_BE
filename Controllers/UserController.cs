@@ -21,12 +21,12 @@ namespace CNPM_BE.Controllers
         [ActionName("Login")]
         public async Task<IActionResult> Login(LoginReq req)
         {
-            var user = await _context.User.FirstOrDefaultAsync(u => u.Username == req.UsernameOrEmail || u.Email == req.UsernameOrEmail);
+            var user = await _context.AppUser.FirstOrDefaultAsync(u => u.Username == req.UsernameOrEmail || u.Email == req.UsernameOrEmail);
             if (user == null)
             {
                 return NotFound("User not found!");
             }
-            var isCorrect = await _userService.VerifyPassword(user, req);
+            var isCorrect = await _userService.VerifyPassword(user, req.Password);
             if (!isCorrect)
             {
                 return BadRequest("Wrong password!");
@@ -41,6 +41,17 @@ namespace CNPM_BE.Controllers
             var resp = await _userService.CreateNewUser(req);
             if(resp == null) return BadRequest();
             return Ok(resp);
+        }
+        [HttpPost]
+        [ActionName("ChangePassword")]
+        public async Task<IActionResult> ChangePassword(ChangePasswordReq req)
+        {
+            var user = await _userService.GetUser(User);
+            if (user == null)
+            {
+                return NotFound();
+            }
+            return null;
         }
     }
 }

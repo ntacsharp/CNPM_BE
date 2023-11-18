@@ -21,7 +21,7 @@ namespace CNPM_BE.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("CNPM_BE.Models.User", b =>
+            modelBuilder.Entity("CNPM_BE.Models.AppUser", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -30,10 +30,20 @@ namespace CNPM_BE.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Password")
+                    b.Property<string>("Email")
                         .IsRequired()
                         .HasColumnType("text")
-                        .HasColumnName("password");
+                        .HasColumnName("email");
+
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("password_hash");
+
+                    b.Property<byte[]>("PasswordSalt")
+                        .IsRequired()
+                        .HasColumnType("bytea")
+                        .HasColumnName("password_salt");
 
                     b.Property<string>("Username")
                         .IsRequired()
@@ -41,9 +51,9 @@ namespace CNPM_BE.Migrations
                         .HasColumnName("username");
 
                     b.HasKey("Id")
-                        .HasName("pk_user");
+                        .HasName("pk_app_user");
 
-                    b.ToTable("user", (string)null);
+                    b.ToTable("app_user", (string)null);
                 });
 #pragma warning restore 612, 618
         }

@@ -7,7 +7,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using System.Security.Cryptography;
-
+using Microsoft.EntityFrameworkCore;
 
 namespace CNPM_BE.Services
 {
@@ -23,16 +23,15 @@ namespace CNPM_BE.Services
             _context = context;
             _config = config;
         }
-        public async Task<bool> VerifyPassword(User user, LoginReq req)
+        public async Task<bool> VerifyPassword(AppUser user, string password)
         {
-            string hashedPassword = await HashPassword(req.Password, user.PasswordSalt);
+            string hashedPassword = await HashPassword(password, user.PasswordSalt);
             return hashedPassword == user.PasswordHash;
         }
         public async Task<ApiResp> CreateNewUser(RegisterReq req)
         {
-            var newUser = new User();
+            var newUser = new AppUser();
             newUser.Username = req.Username;
-            newUser.Role = req.Role;
             newUser.Email = req.Email;
             byte[] salt = new byte[16];
             using (var rng = RandomNumberGenerator.Create())
@@ -43,7 +42,7 @@ namespace CNPM_BE.Services
             newUser.PasswordHash = await HashPassword(req.Password, salt);
             try
             {
-                await _context.User.AddAsync(newUser);
+                await _context.AppUser.AddAsync(newUser);
                 await _context.SaveChangesAsync();
             }
             catch (Exception ex)
@@ -71,14 +70,14 @@ namespace CNPM_BE.Services
 
             return Convert.ToHexString(hash);
         }
-        public async Task<string> CreateToken(User user)
+        public async Task<string> CreateToken(AppUser user)
         {
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
             var claims = new[]
             {
                 new Claim(ClaimTypes.NameIdentifier,user.Username),
-                new Claim(ClaimTypes.Role, user.Role)
+                new Claim(ClaimTypes.Email,user.Email),
             };
             var token = new JwtSecurityToken(_config["Jwt:Issuer"],
                 _config["Jwt:Audience"],
@@ -86,6 +85,41 @@ namespace CNPM_BE.Services
                 expires: DateTime.Now.AddHours(2),
                 signingCredentials: credentials);
             return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+        public async Task<ApiResp> ChangePassword(AppUser user, ChangePasswordReq req)
+        {
+            var resp = new ApiResp();
+            if((await VerifyPassword(user, req.OldPassword)) == false)
+            {
+                resp.code = -1;
+                resp.message = "Sai mật khẩu";
+                return resp;
+            }
+            user.PasswordHash = await HashPassword(req.NewPassword, user.PasswordSalt);
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch(Exception ex)
+            {
+                resp.code = -1;
+                resp.message = "Đã có lỗi xảy ra!";
+                return resp;
+            }
+            resp.code = 1;
+            resp.message = "Đổi mật khẩu thành công";
+            return resp;
+        }
+        public async Task<AppUser> GetUser(ClaimsPrincipal user)
+        {
+            var email = user.Claims.First(c => c.Type == "email").Value;
+            var x = await GetUser(email);
+            return x;
+        }
+        public async Task<AppUser> GetUser(string email)
+        {
+            var user = await _context.AppUser.FirstOrDefaultAsync(a => a.Email == email);
+            return user;
         }
     }
 }

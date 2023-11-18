@@ -11,7 +11,7 @@ namespace CNPM_BE.Data
     public class CNPMDbContext : DbContext
     {
         public CNPMDbContext(DbContextOptions<CNPMDbContext> options) : base(options) { }
-        public DbSet<User> User { get; set; }
+        public DbSet<AppUser> AppUser { get; set; }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) =>
             optionsBuilder.UseSnakeCaseNamingConvention();
         protected override void OnModelCreating(ModelBuilder modelBuilder) { }
