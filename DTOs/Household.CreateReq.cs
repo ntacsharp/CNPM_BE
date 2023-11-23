@@ -1,16 +1,12 @@
-﻿namespace CNPM_BE.Models
+﻿namespace CNPM_BE.DTOs
 {
-    public class Household
+    public class HouseholdCreateReq
     {
-        public int Id { get; set; }
-        public int ManagerId { get; set; }
         public string OwnerName { get; set; }
         public string HouseholdCode { get; set; }
         public int VehicleCount { get; set; }
         public double Area { get; set; }
-        public bool IsActive { get; set; }
         public DateTime CreatedTime { get; set; }
-        public DateTime? DeactivateTime { get; set; }
         public int ServiceFeePerMember { get; set; }
     }
 }
