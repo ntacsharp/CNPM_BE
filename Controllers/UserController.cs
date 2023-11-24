@@ -19,7 +19,7 @@ namespace CNPM_BE.Controllers
         }
         [HttpPost]
         [ActionName("Login")]
-        public async Task<IActionResult> Login(LoginReq req)
+        public async Task<ActionResult> Login(LoginReq req)
         {
             var user = await _context.AppUser.FirstOrDefaultAsync(u => u.Username == req.UsernameOrEmail || u.Email == req.UsernameOrEmail);
             if (user == null)
@@ -36,7 +36,7 @@ namespace CNPM_BE.Controllers
         }
         [HttpPost]
         [ActionName("Register")]
-        public async Task<IActionResult> Register(RegisterReq req)
+        public async Task<ActionResult> Register(RegisterReq req)
         {
             var resp = await _userService.CreateNewUser(req);
             if(resp == null) return BadRequest();
@@ -44,7 +44,7 @@ namespace CNPM_BE.Controllers
         }
         [HttpPost]
         [ActionName("ChangePassword")]
-        public async Task<IActionResult> ChangePassword(ChangePasswordReq req)
+        public async Task<ActionResult> ChangePassword(ChangePasswordReq req)
         {
             var user = await _userService.GetUser(User);
             if (user == null)

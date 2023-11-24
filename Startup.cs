@@ -39,6 +39,8 @@ namespace CNPM_BE
             });
             services.AddScoped<UserService>();
             services.AddScoped<DonationService>();
+            services.AddScoped<ManagementService>();
+            services.AddScoped<FeeService>();
             services.AddControllersWithViews();
             services.AddRazorPages();
             services.AddDatabaseDeveloperPageExceptionFilter();

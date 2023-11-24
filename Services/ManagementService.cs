@@ -38,6 +38,28 @@ namespace CNPM_BE.Services
             hh = await _context.Household.OrderBy(h => h.Id).LastOrDefaultAsync(h => (h.ManagerId == user.Id && h.HouseholdCode == req.HouseholdCode));
             //var hf = new HouseholdFee();
             //hf.
+            var chf = new CurrentHouseholdFee();
+            chf.HouseholdId = hh.Id;
+            chf.LeftoverManagementFee = 0;
+            chf.LeftoverParkingFee = 0;
+            chf.LeftoverServiceFee = 0;
+            chf.CurrentManagementFee = chf.TotalManagementFee = (int)(7000 * hh.Area);
+            chf.CurrentParkingFee = chf.TotalParkingFee = 70000 * hh.VehicleCount;
+            chf.CurrentServiceFee = chf.TotalServiceFee = (int)(hh.ServiceFeePerMember * hh.Area);
+            chf.PaidManagementFee = 0;
+            chf.PaidParkingFee = 0;
+            chf.PaidManagementFee = 0;
+            try
+            {
+                await _context.CurrentHouseholdFee.AddAsync(chf);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception) 
+            {
+                resp.code = -1;
+                resp.message = "Đã có lỗi xảy ra khi tạo hộ gia đình";
+                return resp;
+            }
             var fl = await _context.DonationFund.Where(f => (f.CreatorId == user.Id && f.ExpirationTime < DateTime.Now)).ToListAsync();
             foreach(var f in fl)
             {
@@ -104,6 +126,7 @@ namespace CNPM_BE.Services
             hm.Name = req.Name;
             hm.HouseholdId = req.HouseholdId;
             hm.IsActive = true;
+
             try
             {
                 await _context.HouseholdMember.AddAsync(hm);

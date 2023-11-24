@@ -30,6 +30,14 @@ namespace CNPM_BE.Services
         }
         public async Task<ApiResp> CreateNewUser(RegisterReq req)
         {
+            var resp = new ApiResp();
+            var exUser = await _context.AppUser.FirstOrDefaultAsync(u => (u.Username == req.Username || u.Email == req.Email));
+            if(exUser != null)
+            {
+                resp.code = -1;
+                resp.message = "Tài khoản đã tồn tại";
+                return resp;
+            }
             var newUser = new AppUser();
             newUser.Username = req.Username;
             newUser.Email = req.Email;
@@ -49,19 +57,13 @@ namespace CNPM_BE.Services
             {
                 return null;
             }
-            var resp = new ApiResp();
+            
             resp.code = 1;
             resp.message = "Đăng ký thành công";
             return resp;
         }
         public async Task<string> HashPassword(string password, byte[] salt)
         {
-            salt = new byte[keySize];
-            using (var rng = RandomNumberGenerator.Create())
-            {
-                rng.GetBytes(salt);
-            }
-
             var hash = new Rfc2898DeriveBytes(
                 Encoding.UTF8.GetBytes(password),
                 salt,

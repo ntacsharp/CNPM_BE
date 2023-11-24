@@ -8,6 +8,11 @@ namespace CNPM_BE.Services
     public class DonationService
     {
         private readonly CNPMDbContext _context;
+        public DonationService(CNPMDbContext context)
+        {
+            _context = context;
+        }
+
         public async Task<ApiResp> CreateDonationFund(AppUser user, DonationFundCreateReq req)
         {
             var resp = new ApiResp();

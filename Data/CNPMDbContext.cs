@@ -17,7 +17,9 @@ namespace CNPM_BE.Data
         public DbSet<HouseholdDonation> HouseholdDonation { get; set; }
         public DbSet<DonationFund> DonationFund { get; set; }
         public DbSet<Donation> Donation { get; set; }
-        public DbSet<HouseholdFee> HouseholdFee { get; set; }
+        public DbSet<HouseholdFeeHistory> HouseholdFeeHistory { get; set; }
+        public DbSet<CurrentHouseholdFee> CurrentHouseholdFee { get; set; }
+        public  DbSet<FeePayment> FeePayment { get; set; }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) =>
             optionsBuilder.UseSnakeCaseNamingConvention();
         protected override void OnModelCreating(ModelBuilder modelBuilder) 
@@ -47,7 +49,17 @@ namespace CNPM_BE.Data
                 .WithMany()
                 .HasForeignKey(x => x.CreatorId)
                 .IsRequired();
-            modelBuilder.Entity<HouseholdFee>()
+            modelBuilder.Entity<HouseholdFeeHistory>()
+                .HasOne<Household>()
+                .WithMany()
+                .HasForeignKey(x => x.HouseholdId)
+                .IsRequired();
+            modelBuilder.Entity<CurrentHouseholdFee>()
+                .HasOne<Household>()
+                .WithMany()
+                .HasForeignKey(x => x.HouseholdId)
+                .IsRequired();
+            modelBuilder.Entity<FeePayment>()
                 .HasOne<Household>()
                 .WithMany()
                 .HasForeignKey(x => x.HouseholdId)
