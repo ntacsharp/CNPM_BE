@@ -40,6 +40,7 @@ namespace CNPM_BE.Services
             //hf.
             var chf = new CurrentHouseholdFee();
             chf.HouseholdId = hh.Id;
+            chf.IsActive = true;
             chf.LeftoverManagementFee = 0;
             chf.LeftoverParkingFee = 0;
             chf.LeftoverServiceFee = 0;
@@ -87,6 +88,7 @@ namespace CNPM_BE.Services
         {
             var resp = new ApiResp();
             var hh = await _context.Household.FirstOrDefaultAsync(h => (h.Id == householdId && h.ManagerId == user.Id));
+            var chf = await _context.CurrentHouseholdFee.FirstOrDefaultAsync(c => c.HouseholdId ==  householdId);
             if(hh == null)
             {
                 resp.code = -1;
@@ -94,6 +96,7 @@ namespace CNPM_BE.Services
                 return resp;
             }
             hh.IsActive = false;
+            chf.IsActive = false;
             hh.DeactivateTime = DateTime.Now;
             try
             {

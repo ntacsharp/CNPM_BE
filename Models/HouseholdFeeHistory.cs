@@ -18,5 +18,22 @@
         public int PaidManagementFee { get; set; }
         public int PaidParkingFee { get; set; }
         public int PaidServiceFee { get; set; }
+        public HouseholdFeeHistory(CurrentHouseholdFee chf, int month, int year)
+        {
+            Month = month;
+            Year = year;
+            CurrentManagementFee = chf.CurrentManagementFee;
+            CurrentParkingFee = chf.CurrentParkingFee;
+            CurrentServiceFee = chf.CurrentServiceFee;
+            LeftoverManagementFee = chf.LeftoverManagementFee;
+            LeftoverParkingFee = chf.LeftoverParkingFee;
+            LeftoverServiceFee = chf.LeftoverServiceFee;
+            TotalManagementFee = chf.TotalManagementFee;
+            TotalParkingFee = chf.TotalParkingFee;
+            TotalServiceFee = chf.TotalServiceFee;
+            PaidManagementFee = chf.PaidManagementFee;
+            PaidParkingFee = chf.PaidParkingFee;
+            PaidServiceFee = chf.PaidServiceFee;
+        }
     }
 }
