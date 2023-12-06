@@ -19,7 +19,7 @@ namespace CNPM_BE.Data
         public DbSet<Donation> Donation { get; set; }
         public DbSet<HouseholdFeeHistory> HouseholdFeeHistory { get; set; }
         public DbSet<CurrentHouseholdFee> CurrentHouseholdFee { get; set; }
-        public  DbSet<FeePayment> FeePayment { get; set; }
+        public DbSet<FeePayment> FeePayment { get; set; }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) =>
             optionsBuilder.UseSnakeCaseNamingConvention();
         protected override void OnModelCreating(ModelBuilder modelBuilder) 

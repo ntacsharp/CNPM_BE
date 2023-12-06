@@ -17,7 +17,6 @@ namespace CNPM_BE.Models
                 serviceProvider.GetRequiredService<
                     DbContextOptions<CNPMDbContext>>()))
             {
-
             }
         }
     }
