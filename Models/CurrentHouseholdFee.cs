@@ -4,6 +4,7 @@
     {
         public int Id { get; set; }
         public int HouseholdId { get; set; }
+        public int CreatorId { get; set; }
         public bool IsActive { get; set; }
         public int CurrentManagementFee { get; set; }
         public int CurrentParkingFee { get; set; }

@@ -38,9 +38,10 @@ namespace CNPM_BE
                     ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
             });
             services.AddScoped<UserService>();
-            //services.AddScoped<DonationService>();
+            services.AddScoped<DonationService>();
             services.AddScoped<ManagementService>();
             //services.AddScoped<FeeService>();
+            services.AddScoped<TimeConverterService>();
             services.AddControllersWithViews();
             services.AddRazorPages();
             services.AddDatabaseDeveloperPageExceptionFilter();

@@ -44,6 +44,11 @@ namespace CNPM_BE.Data
                 .WithMany()
                 .HasForeignKey(x => x.DonatorId)
                 .IsRequired();
+            modelBuilder.Entity<Donation>()
+                .HasOne<AppUser>()
+                .WithMany()
+                .HasForeignKey(x => x.CreatorId)
+                .IsRequired();
             modelBuilder.Entity<DonationFund>()
                 .HasOne<AppUser>()
                 .WithMany()
@@ -59,15 +64,30 @@ namespace CNPM_BE.Data
                 .WithMany()
                 .HasForeignKey(x => x.HouseholdId)
                 .IsRequired();
+            modelBuilder.Entity<CurrentHouseholdFee>()
+                .HasOne<AppUser>()
+                .WithMany()
+                .HasForeignKey(x => x.CreatorId)
+                .IsRequired();
             modelBuilder.Entity<FeePayment>()
                 .HasOne<Household>()
                 .WithMany()
                 .HasForeignKey(x => x.HouseholdId)
                 .IsRequired();
+            modelBuilder.Entity<FeePayment>()
+                .HasOne<AppUser>()
+                .WithMany()
+                .HasForeignKey(x => x.CreatorId)
+                .IsRequired();
             modelBuilder.Entity<HouseholdDonation>()
                 .HasOne<Household>()
                 .WithMany()
                 .HasForeignKey(x => x.DonatorId)
+                .IsRequired();
+            modelBuilder.Entity<HouseholdDonation>()
+                .HasOne<AppUser>()
+                .WithMany()
+                .HasForeignKey(x => x.CreatorId)
                 .IsRequired();
             modelBuilder.Entity<HouseholdDonation>()
                 .HasOne<DonationFund>()

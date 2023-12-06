@@ -8,9 +8,11 @@ namespace CNPM_BE.Services
     public class ManagementService
     {
         private readonly CNPMDbContext _context;
-        public ManagementService(CNPMDbContext context)
+        private readonly TimeConverterService _timeConverterService;
+        public ManagementService(CNPMDbContext context, TimeConverterService timeConverterService)
         {
             _context = context;
+            _timeConverterService = timeConverterService;
         }
         public async Task<ApiResp> CreateHousehold(AppUser user, HouseholdCreateReq req)
         {
@@ -28,7 +30,7 @@ namespace CNPM_BE.Services
             hh.OwnerName = req.OwnerName;
             hh.HouseholdCode = req.HouseholdCode;
             hh.Area = req.Area;
-            hh.CreatedTime = DateTime.Now;
+            hh.CreatedTime = await _timeConverterService.ConvertToUTCTime(DateTime.Now);
             hh.ServiceFeePerMeter = req.ServiceFeePerMeter;
             hh.VehicleCount = req.VehicleCount;
             hh.IsActive = true;
@@ -48,6 +50,7 @@ namespace CNPM_BE.Services
             //hf.
             var chf = new CurrentHouseholdFee();
             chf.HouseholdId = hh.Id;
+            chf.CreatorId = user.Id;
             chf.IsActive = true;
             chf.LeftoverManagementFee = 0;
             chf.LeftoverParkingFee = 0;
@@ -76,6 +79,7 @@ namespace CNPM_BE.Services
                 hd.Amount = 0;
                 hd.DonatorId = hh.Id;
                 hd.FundId = f.Id;
+                hd.CreatorId = user.Id;
                 try
                 {
                     await _context.HouseholdDonation.AddAsync(hd);
