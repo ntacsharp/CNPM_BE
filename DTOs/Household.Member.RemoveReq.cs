@@ -1,6 +1,6 @@
 ﻿namespace CNPM_BE.DTOs
 {
-    public class HouseholdRemoveMemberReq
+    public class RemoveMemberReq
     {
         public int Id { get; set; }
     }

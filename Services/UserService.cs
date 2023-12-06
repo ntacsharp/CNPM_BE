@@ -123,5 +123,10 @@ namespace CNPM_BE.Services
             var user = await _context.AppUser.FirstOrDefaultAsync(a => a.Email == email);
             return user;
         }
+        public async Task<AppUser> GetUser()
+        {
+            var user = await _context.AppUser.FirstOrDefaultAsync(a => a.Id == 1);
+            return user;
+        }
     }
 }

@@ -1,8 +1,7 @@
 ﻿namespace CNPM_BE.DTOs
 {
-    public class HouseholdAddMemberReq
+    public class HouseholdDeactivateReq
     {
-        public string Name { get; set; }
         public int HouseholdId { get; set; }
     }
 }

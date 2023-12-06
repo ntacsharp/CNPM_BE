@@ -21,7 +21,7 @@ namespace CNPM_BE.Controllers
         [ActionName("CreateHousehold")]
         public async Task<ActionResult> CreateHousehold(HouseholdCreateReq req)
         {
-            var user = await _userService.GetUser(User);
+            var user = await _userService.GetUser();
             if (user == null)
             {
                 return Unauthorized();
@@ -32,22 +32,22 @@ namespace CNPM_BE.Controllers
         }
         [HttpPost]
         [ActionName("DeactivateHousehold")]
-        public async Task<ActionResult> DeactivateHousehold(int householdId)
+        public async Task<ActionResult> DeactivateHousehold(HouseholdDeactivateReq req)
         {
-            var user = await _userService.GetUser(User);
+            var user = await _userService.GetUser();
             if (user == null)
             {
                 return Unauthorized();
             }
-            var resp = await _managementService.DeactivateHousehold(user, householdId);
+            var resp = await _managementService.DeactivateHousehold(user, req);
             if (resp == null) return BadRequest();
             return Ok(resp);
         }
         [HttpPost]
         [ActionName("AddMember")]
-        public async Task<ActionResult> AddMember(HouseholdAddMemberReq req)
+        public async Task<ActionResult> AddMember(AddMemberReq req)
         {
-            var user = await _userService.GetUser(User);
+            var user = await _userService.GetUser();
             if (user == null)
             {
                 return Unauthorized();
@@ -58,14 +58,40 @@ namespace CNPM_BE.Controllers
         }
         [HttpPost]
         [ActionName("RemoveMember")]
-        public async Task<ActionResult> RemoveMember(HouseholdRemoveMemberReq req)
+        public async Task<ActionResult> RemoveMember(RemoveMemberReq req)
         {
-            var user = await _userService.GetUser(User);
+            var user = await _userService.GetUser();
             if (user == null)
             {
                 return Unauthorized();
             }
             var resp = await _managementService.RemoveMember(user, req);
+            if (resp == null) return BadRequest();
+            return Ok(resp);
+        }
+        [HttpPost]
+        [ActionName("GetHouseholdList")]
+        public async Task<ActionResult> GetHouseholdList(Payload payload)
+        {
+            var user = await _userService.GetUser();
+            if (user == null)
+            {
+                return Unauthorized();
+            }
+            var resp = await _managementService.GetHouseholdList(user, payload);
+            if (resp == null) return BadRequest();
+            return Ok(resp);
+        }
+        [HttpPost]
+        [ActionName("GetMemberList")]
+        public async Task<ActionResult> GetMemberList(MemberReq req)
+        {
+            var user = await _userService.GetUser();
+            if (user == null)
+            {
+                return Unauthorized();
+            }
+            var resp = await _managementService.GetMemberList(req);
             if (resp == null) return BadRequest();
             return Ok(resp);
         }

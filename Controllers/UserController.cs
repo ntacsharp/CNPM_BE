@@ -46,12 +46,14 @@ namespace CNPM_BE.Controllers
         [ActionName("ChangePassword")]
         public async Task<ActionResult> ChangePassword(ChangePasswordReq req)
         {
-            var user = await _userService.GetUser(User);
+            var user = await _userService.GetUser();
             if (user == null)
             {
                 return NotFound();
             }
-            return null;
+            var resp = await _userService.ChangePassword(user, req);
+            if (resp == null) return BadRequest();
+            return Ok(resp);
         }
     }
 }
