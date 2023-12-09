@@ -40,8 +40,9 @@ namespace CNPM_BE
             services.AddScoped<UserService>();
             services.AddScoped<DonationService>();
             services.AddScoped<ManagementService>();
-            //services.AddScoped<FeeService>();
+            services.AddScoped<FeeService>();
             services.AddScoped<TimeConverterService>();
+            services.AddHostedService<FeeCalculationService>();
             services.AddControllersWithViews();
             services.AddRazorPages();
             services.AddDatabaseDeveloperPageExceptionFilter();
