@@ -68,5 +68,18 @@ namespace CNPM_BE.Controllers
             if (resp == null) return BadRequest();
             return Ok(resp);
         }
+        [HttpGet]
+        [ActionName("GetDonationFund")]
+        public async Task<ActionResult> GetDonationFund()
+        {
+            var user = await _userService.GetUser(User);
+            if (user == null)
+            {
+                return Unauthorized();
+            }
+            var resp = await _donationService.GetDonationFund(user);
+            if (resp == null) return BadRequest();
+            return Ok(resp);
+        }
     }
 }

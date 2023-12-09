@@ -95,5 +95,18 @@ namespace CNPM_BE.Controllers
             if (resp == null) return BadRequest();
             return Ok(resp);
         }
+        [HttpGet]
+        [ActionName("GetOption")]
+        public async Task<ActionResult> GetOption()
+        {
+            var user = await _userService.GetUser();
+            if (user == null)
+            {
+                return Unauthorized();
+            }
+            var resp = await _managementService.GetOption(user);
+            if (resp == null) return BadRequest();
+            return Ok(resp);
+        }
     }
 }

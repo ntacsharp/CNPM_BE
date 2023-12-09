@@ -196,5 +196,20 @@ namespace CNPM_BE.Services
             var list = await _context.HouseholdMember.Where(h => h.HouseholdId == req.Id && h.IsActive).Select(h => new MemberResp(h)).ToListAsync();
             return list;
         }
+        public async Task<List<HouseholdOption>> GetOption(AppUser user)
+        {
+            var x = await _context.Household.Where(h => h.ManagerId == user.Id && h.IsActive).ToListAsync();
+            var resp = new List<HouseholdOption>();
+            foreach(var hh in x)
+            {
+                var ho = new HouseholdOption();
+                ho.Id = hh.Id;
+                ho.OwnerName = hh.OwnerName;
+                ho.HouseholdCode = hh.HouseholdCode;
+                ho.ApartmentCode = hh.ApartmentCode;
+                resp.Add(ho);
+            }
+            return resp;
+        }
     }
 }
