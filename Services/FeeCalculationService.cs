@@ -47,7 +47,23 @@ namespace CNPM_BE.Services
             var chfList = await _context.CurrentHouseholdFee.Where(c => c.IsActive).ToListAsync();
             foreach (var chf in chfList)
             {
-                var hfh = new HouseholdFeeHistory(chf, m, y);
+                var hfh = new HouseholdFeeHistory();
+                hfh.Month = m;
+                hfh.Year = y;
+                hfh.CurrentManagementFee = chf.CurrentManagementFee;
+                hfh.CurrentParkingFee = chf.CurrentParkingFee;
+                hfh.CurrentServiceFee = chf.CurrentServiceFee;
+                hfh.LeftoverManagementFee = chf.LeftoverManagementFee;
+                hfh.LeftoverParkingFee = chf.LeftoverParkingFee;
+                hfh.LeftoverServiceFee = chf.LeftoverServiceFee;
+                hfh.TotalManagementFee = chf.TotalManagementFee;
+                hfh.TotalParkingFee = chf.TotalParkingFee;
+                hfh.TotalServiceFee = chf.TotalServiceFee;
+                hfh.PaidManagementFee = chf.PaidManagementFee;
+                hfh.PaidParkingFee = chf.PaidParkingFee;
+                hfh.PaidServiceFee = chf.PaidServiceFee;
+                hfh.CreatorId = chf.CreatorId;
+                hfh.HouseholdId = chf.HouseholdId;
                 try
                 {
                     await _context.HouseholdFeeHistory.AddAsync(hfh);
@@ -62,7 +78,7 @@ namespace CNPM_BE.Services
                 chf.LeftoverServiceFee = chf.TotalServiceFee - chf.PaidServiceFee;
                 chf.TotalManagementFee = chf.LeftoverManagementFee + chf.CurrentManagementFee;
                 chf.TotalParkingFee = chf.LeftoverParkingFee + chf.CurrentParkingFee;
-                chf.CurrentServiceFee = chf.LeftoverServiceFee + chf.CurrentServiceFee;
+                chf.TotalServiceFee = chf.LeftoverServiceFee + chf.CurrentServiceFee;
                 chf.PaidManagementFee = chf.PaidParkingFee = chf.PaidServiceFee = 0;
                 try
                 {
