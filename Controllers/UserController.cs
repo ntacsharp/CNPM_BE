@@ -24,12 +24,12 @@ namespace CNPM_BE.Controllers
             var user = await _context.AppUser.FirstOrDefaultAsync(u => u.Username == req.UsernameOrEmail || u.Email == req.UsernameOrEmail);
             if (user == null)
             {
-                return NotFound("User not found!");
+                return Ok("Người dùng không tồn tại!");
             }
             var isCorrect = await _userService.VerifyPassword(user, req.Password);
             if (!isCorrect)
             {
-                return BadRequest("Wrong password!");
+                return Ok("Sai mật khẩu!");
             }
             string token = await _userService.CreateToken(user);
             return Ok(new LoginResp { Token = token });
@@ -52,6 +52,19 @@ namespace CNPM_BE.Controllers
                 return NotFound();
             }
             var resp = await _userService.ChangePassword(user, req);
+            if (resp == null) return BadRequest();
+            return Ok(resp);
+        }
+        [HttpPost]
+        [ActionName("UpdateInformation")]
+        public async Task<ActionResult> UpdateInformation(AccountUpdateReq req)
+        {
+            var user = await _userService.GetUser();
+            if (user == null)
+            {
+                return NotFound();
+            }
+            var resp = await _userService.UpdateInformation(user, req);
             if (resp == null) return BadRequest();
             return Ok(resp);
         }

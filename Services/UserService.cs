@@ -31,6 +31,7 @@ namespace CNPM_BE.Services
         public async Task<ApiResp> CreateNewUser(RegisterReq req)
         {
             var resp = new ApiResp();
+            var count = await _context.AppUser.CountAsync();
             var exUser = await _context.AppUser.FirstOrDefaultAsync(u => (u.Username == req.Username || u.Email == req.Email));
             if(exUser != null)
             {
@@ -39,8 +40,14 @@ namespace CNPM_BE.Services
                 return resp;
             }
             var newUser = new AppUser();
+            newUser.UserCode = "U" + (count + 1).ToString().PadLeft(3, '0');
             newUser.Username = req.Username;
             newUser.Email = req.Email;
+            newUser.Name = "";
+            newUser.PhoneNumber = "";
+            newUser.BankName = "";
+            newUser.BankAccountNumber = "";
+            newUser.FacebookLink = "";
             byte[] salt = new byte[16];
             using (var rng = RandomNumberGenerator.Create())
             {
@@ -125,8 +132,30 @@ namespace CNPM_BE.Services
         }
         public async Task<AppUser> GetUser()
         {
-            var user = await _context.AppUser.FirstOrDefaultAsync(a => a.Id == 1);
+            var user = await _context.AppUser.FirstOrDefaultAsync();
             return user;
+        }
+        public async Task<ApiResp> UpdateInformation(AppUser user, AccountUpdateReq req)
+        {
+            var resp = new ApiResp();
+            user.Name = req.Name;
+            user.PhoneNumber = req.PhoneNumber;
+            user.BankName = req.BankName;
+            user.BankAccountNumber = req.BankAccountNumber;
+            user.FacebookLink = req.FacebookLink;
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception)
+            {
+                resp.code = -1;
+                resp.message = "Đã có lỗi xảy ra trong quá trình cập nhật thông tin";
+                return resp;
+            }
+            resp.code = 1;
+            resp.message = "Cập nhật thông tin thành công";
+            return resp;
         }
     }
 }

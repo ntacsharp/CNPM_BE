@@ -38,11 +38,11 @@ namespace CNPM_BE
                     ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
             });
             services.AddScoped<UserService>();
-            services.AddScoped<DonationService>();
-            services.AddScoped<ManagementService>();
-            services.AddScoped<FeeService>();
+            services.AddScoped<ApartmentService>();
+            //services.AddScoped<DonationService>();
+            //services.AddScoped<ManagementService>();
+            //services.AddScoped<FeeService>();
             services.AddScoped<TimeConverterService>();
-            services.AddHostedService<FeeCalculationService>();
             services.AddControllersWithViews();
             services.AddRazorPages();
             services.AddDatabaseDeveloperPageExceptionFilter();
