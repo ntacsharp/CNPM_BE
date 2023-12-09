@@ -108,9 +108,14 @@ namespace CNPM_BE.Services
             resp.message = "Tạo bản thu thành công";
             return resp;
         }
-        public async Task<List<HouseholdDonation>> GetHouseholdDonation(AppUser user, Payload req)
+        public async Task<List<HouseholdDonation>> GetHouseholdDonation(AppUser user, Payload payload)
         {
-            var list = await _context.HouseholdDonation.Where(h => h.CreatorId == user.Id).Skip(req.Skip * req.Take).Take(req.Take).ToListAsync();
+            var list = await _context.HouseholdDonation.Where(h => h.CreatorId == user.Id).Skip(payload.Skip * payload.Take).Take(payload.Take).ToListAsync();
+            return list;
+        }
+        public async Task<List<DonationFund>> GetDonationFund(AppUser user)
+        {
+            var list = await _context.DonationFund.Where(d => d.CreatorId == user.Id).ToListAsync();
             return list;
         }
     }
