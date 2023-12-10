@@ -1,215 +1,181 @@
-﻿//using CNPM_BE.Data;
-//using CNPM_BE.DTOs;
-//using CNPM_BE.Models;
-//using Microsoft.EntityFrameworkCore;
+﻿using CNPM_BE.Data;
+using CNPM_BE.DTOs;
+using CNPM_BE.Models;
+using Microsoft.EntityFrameworkCore;
 
-//namespace CNPM_BE.Services
-//{
-//    public class ManagementService
-//    {
-//        private readonly CNPMDbContext _context;
-//        private readonly TimeConverterService _timeConverterService;
-//        public ManagementService(CNPMDbContext context, TimeConverterService timeConverterService)
-//        {
-//            _context = context;
-//            _timeConverterService = timeConverterService;
-//        }
-//        public async Task<ApiResp> CreateHousehold(AppUser user, HouseholdCreateReq req)
-//        {
-//            var hh = new Household();
-//            var resp = new ApiResp();
-//            var ex = await _context.Household.OrderBy(h => h.Id).LastOrDefaultAsync(h => (h.ManagerId == user.Id && h.HouseholdCode == req.HouseholdCode && h.IsActive));
-//            if (ex != null)
-//            {
-//                resp.code = -1;
-//                resp.message = "Đã tồn tại hộ gia đình mang mã " + req.HouseholdCode + " trong hệ thống";
-//                return resp;
-//            }
-//            hh.ManagerId = user.Id;
-//            hh.ApartmentCode = req.ApartmentCode;
-//            hh.OwnerName = req.OwnerName;
-//            hh.HouseholdCode = req.HouseholdCode;
-//            hh.Area = req.Area;
-//            hh.CreatedTime = await _timeConverterService.ConvertToUTCTime(DateTime.Now);
-//            hh.ServiceFeePerMeter = req.ServiceFeePerMeter;
-//            hh.VehicleCount = req.VehicleCount;
-//            hh.IsActive = true;
-//            try
-//            {
-//                await _context.Household.AddAsync(hh);
-//                await _context.SaveChangesAsync();
-//            }
-//            catch (Exception)
-//            {
-//                resp.code = -1;
-//                resp.message = "Đã có lỗi xảy ra khi tạo hộ gia đình";
-//                return resp;
-//            }
-//            hh = await _context.Household.OrderBy(h => h.Id).LastOrDefaultAsync(h => (h.ManagerId == user.Id && h.HouseholdCode == req.HouseholdCode && h.IsActive));
-//            //var hf = new HouseholdFee();
-//            //hf.
-//            var chf = new CurrentHouseholdFee();
-//            chf.HouseholdId = hh.Id;
-//            chf.CreatorId = user.Id;
-//            chf.IsActive = true;
-//            chf.LeftoverManagementFee = 0;
-//            chf.LeftoverParkingFee = 0;
-//            chf.LeftoverServiceFee = 0;
-//            chf.CurrentManagementFee = chf.TotalManagementFee = (int)(7000 * hh.Area);
-//            chf.CurrentParkingFee = chf.TotalParkingFee = 70000 * hh.VehicleCount;
-//            chf.CurrentServiceFee = chf.TotalServiceFee = (int)(hh.ServiceFeePerMeter * hh.Area);
-//            chf.PaidManagementFee = 0;
-//            chf.PaidParkingFee = 0;
-//            chf.PaidManagementFee = 0;
-//            try
-//            {
-//                await _context.CurrentHouseholdFee.AddAsync(chf);
-//                await _context.SaveChangesAsync();
-//            }
-//            catch (Exception) 
-//            {
-//                resp.code = -1;
-//                resp.message = "Đã có lỗi xảy ra khi tạo hộ gia đình";
-//                return resp;
-//            }
-//            var fl = await _context.DonationFund.Where(f => (f.CreatorId == user.Id && f.ExpirationTime < DateTime.Now)).ToListAsync();
-//            foreach(var f in fl)
-//            {
-//                var hd = new HouseholdDonation();
-//                hd.Amount = 0;
-//                hd.DonatorId = hh.Id;
-//                hd.FundId = f.Id;
-//                hd.CreatorId = user.Id;
-//                try
-//                {
-//                    await _context.HouseholdDonation.AddAsync(hd);
-//                    await _context.SaveChangesAsync();
-//                }
-//                catch (Exception)
-//                {
-//                    resp.code = -1;
-//                    resp.message = "Đã có lỗi xảy ra khi tạo hộ gia đình";
-//                    return resp;
-//                }
-//            }
-//            resp.code = 1;
-//            resp.message = "Thêm hộ gia đình thành công";
-//            return resp;
-//        }
-//        public async Task<ApiResp> DeactivateHousehold(AppUser user, HouseholdDeactivateReq req)
-//        {
-//            var resp = new ApiResp();
-//            var hh = await _context.Household.FirstOrDefaultAsync(h => (h.Id == req.HouseholdId && h.ManagerId == user.Id && h.IsActive));
-//            var chf = await _context.CurrentHouseholdFee.FirstOrDefaultAsync(c => c.HouseholdId ==  req.HouseholdId);
-//            if(hh == null)
-//            {
-//                resp.code = -1;
-//                resp.message = "Bạn không có quyền quản lý hộ này";
-//                return resp;
-//            }
-//            hh.IsActive = false;
-//            chf.IsActive = false;
-//            hh.DeactivateTime = DateTime.Now;
-//            try
-//            {
-//                await _context.SaveChangesAsync();
-//            }
-//            catch (Exception)
-//            {
-//                resp.code = -1;
-//                resp.message = "Đã có lỗi xảy ra khi xóa hộ gia đình";
-//                return resp;
-//            }
-//            resp.code = 1;
-//            resp.message = "Xóa hộ gia đình thành công";
-//            return resp;
-//        }
-//        public async Task<ApiResp> AddMember(AppUser user, AddMemberReq req)
-//        {
-//            var resp = new ApiResp();
-//            var hh = await _context.Household.FirstOrDefaultAsync(h => (h.Id ==  req.HouseholdId
-//                && h.ManagerId == user.Id
-//                && h.IsActive
-//            ));
-//            if (hh == null)
-//            {
-//                resp.code = -1;
-//                resp.message = "Bạn không có quyền quản lý hộ này";
-//                return resp;
-//            }
-//            var hm = new HouseholdMember();
-//            hm.Name = req.Name;
-//            hm.HouseholdId = req.HouseholdId;
-//            hm.Nation = req.Nation;
-//            hm.BirthDate = req.BirthDate;
-//            hm.Gender = req.Gender;
-//            hm.IsActive = true;
-
-//            try
-//            {
-//                await _context.HouseholdMember.AddAsync(hm);
-//                await _context.SaveChangesAsync();
-//            }
-//            catch (Exception)
-//            {
-//                resp.code = -1;
-//                resp.message = "Đã có lỗi xảy ra khi thêm thành viên";
-//                return resp;
-//            }
-//            resp.code = 1;
-//            resp.message = "Thêm thành viên thành công";
-//            return resp;
-//        }
-//        public async Task<ApiResp> RemoveMember(AppUser user, RemoveMemberReq req)
-//        {
-//            var resp = new ApiResp();
-//            var hm = await _context.HouseholdMember.FirstOrDefaultAsync(h => h.Id == req.Id);
-//            var hh = await _context.Household.FirstOrDefaultAsync(h => h.Id == hm.HouseholdId);
-//            if(hh.ManagerId != user.Id || !hh.IsActive)
-//            {
-//                resp.code = -1;
-//                resp.message = "Không tìm được thành viên tương ứng";
-//                return resp;
-//            }
-//            hm.IsActive = false;
-//            try
-//            {
-//                await _context.SaveChangesAsync();
-//            }
-//            catch (Exception)
-//            {
-//                resp.code = -1;
-//                resp.message = "Đã có lỗi xảy ra khi xóa thành viên";
-//                return resp;
-//            }
-//            resp.code = 1;
-//            resp.message = "Xóa thành viên thành công";
-//            return resp;
-//        }
-//        public async Task<List<HouseholdResp>> GetHouseholdList(AppUser user, Payload payload)
-//        {
-//            var list = await _context.Household.Where(h => h.ManagerId == user.Id).Skip(payload.Skip * payload.Take).Take(payload.Take).Select(h => new HouseholdResp(h)).ToListAsync();
-//            return list;
-//        }
-//        public async Task<List<MemberResp>> GetMemberList(MemberReq req)
-//        {
-//            var list = await _context.HouseholdMember.Where(h => h.HouseholdId == req.Id && h.IsActive).Select(h => new MemberResp(h)).ToListAsync();
-//            return list;
-//        }
-//        public async Task<List<HouseholdOption>> GetOption(AppUser user)
-//        {
-//            var x = await _context.Household.Where(h => h.ManagerId == user.Id && h.IsActive).ToListAsync();
-//            var resp = new List<HouseholdOption>();
-//            foreach(var hh in x)
-//            {
-//                var ho = new HouseholdOption();
-//                ho.Id = hh.Id;
-//                ho.OwnerName = hh.OwnerName;
-//                ho.HouseholdCode = hh.HouseholdCode;
-//                ho.ApartmentCode = hh.ApartmentCode;
-//                resp.Add(ho);
-//            }
-//            return resp;
-//        }
-//    }
-//}
+namespace CNPM_BE.Services
+{
+    public class ManagementService
+    {
+        private readonly CNPMDbContext _context;
+        private readonly TimeConverterService _timeConverterService;
+        public ManagementService(CNPMDbContext context, TimeConverterService timeConverterService)
+        {
+            _context = context;
+            _timeConverterService = timeConverterService;
+        }
+        public async Task<ApiResp> AddResident(AppUser user, ResidentCreateReq req)
+        {
+            var resp = new ApiResp();
+            var newResident = new Resident();
+            var ex = await _context.Resident.FirstOrDefaultAsync(r => r.ResidentCode == req.ResidentCode && r.CreatorId == user.Id && r.Status == ResidentStatus.Active);
+            if (ex != null)
+            {
+                resp.code = -1;
+                resp.message = "Đã tồn tại cư dân với mã " + req.ResidentCode;
+                return resp;
+            }
+            var apartment = await _context.Apartment.FirstOrDefaultAsync(a => a.Id == req.ApartmentId && a.Status != ApartmentStatus.Deleted && a.CreatorId == user.Id);
+            if (apartment == null)
+            {
+                resp.code = -1;
+                resp.message = "Căn hộ không hợp lệ";
+                return resp;
+            }
+            newResident.CreatorId = user.Id;
+            newResident.ResidentCode = req.ResidentCode;
+            newResident.ApartmentId = req.ApartmentId;
+            newResident.Name = req.Name;
+            newResident.BirthDate = await _timeConverterService.ConvertToUTCTime(req.BirthDate);
+            newResident.Career = req.Career;
+            newResident.Gender = (ResidentGender)req.Gender;
+            newResident.Status = ResidentStatus.Active;
+            newResident.CreatedTime = await _timeConverterService.ConvertToUTCTime(DateTime.Now);
+            try
+            {
+                await _context.Resident.AddAsync(newResident);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception)
+            {
+                resp.code = -1;
+                resp.message = "Đã có lỗi xảy ra trong quá trình thêm cư dân mã " + req.ResidentCode;
+                return resp;
+            }
+            newResident = await _context.Resident.OrderBy(r => r.Id).LastOrDefaultAsync(r => r.CreatorId == user.Id && r.Status == ResidentStatus.Active);
+            if (apartment.Status == ApartmentStatus.Unoccupied)
+            {
+                apartment.Status = ApartmentStatus.Occupied;
+                apartment.OwnerId = newResident.Id;
+            }
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception)
+            {
+                resp.code = -1;
+                resp.message = "Đã có lỗi xảy ra trong quá trình thêm cư dân mã " + req.ResidentCode;
+                return resp;
+            }
+            resp.code = 1;
+            resp.message = "Thêm cư dân mã " + req.ResidentCode + " thành công";
+            return resp;
+        }
+        public async Task<ApiResp> RemoveResident(AppUser user, ResidentDeleteReq req)
+        {
+            var resp = new ApiResp();
+            var resident = await _context.Resident.FirstOrDefaultAsync(r => r.CreatorId == user.Id && r.Id == req.Id && r.Status == ResidentStatus.Active);
+            if (resident == null)
+            {
+                resp.code = -1;
+                resp.message = "Đã có lỗi xảy ra trong quá trình tìm kiếm cư dân";
+                return resp;
+            }
+            var apartment = await _context.Apartment.FirstOrDefaultAsync(a => a.Id == resident.ApartmentId);
+            var count = await _context.Resident.Where(r => r.ApartmentId == resident.ApartmentId && r.Status != ResidentStatus.Deleted).CountAsync();
+            if (count <= 1) apartment.Status = ApartmentStatus.Unoccupied;
+            resident.Status = ResidentStatus.Deleted;
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                resp.code = -1;
+                resp.message = "Đã có lỗi xảy ra trong quá trình xóa cư dân";
+                return resp;
+            }
+            resp.code = 1;
+            resp.message = "Xóa cư dân thành công";
+            return resp;
+        }
+        public async Task<ApiResp> UpdateInformation(AppUser user, ResidentUpdateReq req)
+        {
+            var resp = new ApiResp();
+            var resident = await _context.Resident.FirstOrDefaultAsync(r => r.Id ==  req.Id && r.CreatorId == user.Id && r.Status == ResidentStatus.Active);
+            if (resident == null)
+            {
+                resp.code = -1;
+                resp.message = "Đã có lỗi xảy ra trong quá trình tìm kiếm cư dân";
+                return resp;
+            }
+            resident.Name = req.Name;
+            resident.Career = req.Career;
+            resident.Gender = (ResidentGender)req.Gender;
+            resident.BirthDate = await _timeConverterService.ConvertToUTCTime(req.BirthDate);
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception)
+            {
+                resp.code = -1;
+                resp.message = "Đã có lỗi xảy ra trong quá trình cập nhật thông tin cư dân";
+                return resp;
+            }
+            resp.code = 1;
+            resp.message = "Cập nhật thông tin cư dân thành công";
+            return resp;
+        }
+        public async Task<List<ResidentResp>> GetResidentList(AppUser user)
+        {
+            var list = await _context.Resident.Where(r => r.CreatorId == user.Id && r.Status == ResidentStatus.Active).ToListAsync();
+            var resp = new List<ResidentResp>();
+            foreach(var r in list)
+            {
+                var a = await _context.Apartment.FirstOrDefaultAsync(a => a.Id == r.ApartmentId);
+                var rr = new ResidentResp(r, a);
+                resp.Add(rr);
+            }
+            return resp;
+        }
+        public async Task<List<HouseholdResp>> GetHouseholdList(AppUser user)
+        {
+            var apartmentList = await _context.Apartment.Where(a => a.CreatorId == user.Id && a.Status == ApartmentStatus.Occupied).ToListAsync();
+            var resp = new List<HouseholdResp>();
+            foreach (var a in apartmentList)
+            {
+                var hr = new HouseholdResp();
+                hr.Id = a.Id;
+                hr.Position = a.Position;
+                hr.ApartmentCode = a.ApartmentCode;
+                var owner = await _context.Resident.FirstOrDefaultAsync(r => r.Id == a.OwnerId);
+                hr.OwnerCode = owner.ResidentCode;
+                hr.OwnerName = owner.Name;
+                var list = new List<ResidentResp>();
+                var residentList = await _context.Resident.Where(r => r.ApartmentId == a.Id && r.Status == ResidentStatus.Active).ToListAsync();
+                foreach(var res in residentList)
+                {
+                    var rr = new ResidentResp(res, a);
+                    list.Add(rr);
+                }
+                hr.ResidentList = list;
+                resp.Add(hr);
+            }
+            return resp;
+        }
+        public async Task<List<HouseholdOption>> GetOptionList(AppUser user)
+        {
+            var apartmentList = await _context.Apartment.Where(a => a.CreatorId == user.Id && a.Status == ApartmentStatus.Occupied).ToListAsync();
+            var resp = new List<HouseholdOption>();
+            foreach(var apartment in apartmentList)
+            {
+                var owner = await _context.Resident.FirstOrDefaultAsync(r => r.ApartmentId == apartment.Id && r.Status == ResidentStatus.Active);
+                var ho = new HouseholdOption(apartment, owner);
+                resp.Add(ho);
+            }
+            return resp;
+        }
+    }
+}

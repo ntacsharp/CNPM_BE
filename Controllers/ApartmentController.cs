@@ -57,5 +57,18 @@ namespace CNPM_BE.Controllers
             if (resp == null) return BadRequest();
             return Ok(resp);
         }
+        [HttpPost]
+        [ActionName("RemoveApartment")]
+        public async Task<ActionResult> RemoveApartment(ApartmentDeleteReq req)
+        {
+            var user = await _userService.GetUser();
+            if (user == null)
+            {
+                return NotFound();
+            }
+            var resp = await _apartmentService.RemoveApartment(user, req);
+            if (resp == null) return BadRequest();
+            return Ok(resp);
+        }
     }
 }

@@ -2,6 +2,7 @@
 using CNPM_BE.DTOs;
 using CNPM_BE.Models;
 using Microsoft.EntityFrameworkCore;
+using SQLitePCL;
 
 namespace CNPM_BE.Services
 {
@@ -53,7 +54,7 @@ namespace CNPM_BE.Services
         public async Task<ApiResp> UpdateInformation(AppUser user, ApartmentUpdateReq req)
         {
             var resp = new ApiResp();
-            var apartment = await _context.Apartment.FirstOrDefaultAsync(a => a.Id == req.Id && a.CreatorId == user.Id);
+            var apartment = await _context.Apartment.FirstOrDefaultAsync(a => a.Id == req.Id && a.CreatorId == user.Id && a.Status != ApartmentStatus.Deleted);
             if (apartment == null)
             {
                 resp.code = -1;
@@ -74,6 +75,36 @@ namespace CNPM_BE.Services
             }
             resp.code = 1;
             resp.message = "Cập nhật thông tin căn hộ mã " + apartment.ApartmentCode + " thành công";
+            return resp;
+        }
+        public async Task<ApiResp> RemoveApartment (AppUser user, ApartmentDeleteReq req)
+        {
+            var resp = new ApiResp();
+            var apartment = await _context.Apartment.FirstOrDefaultAsync(a => a.Id == req.Id && a.CreatorId == user.Id && a.Status != ApartmentStatus.Deleted);
+            if (apartment == null)
+            {
+                resp.code = -1;
+                resp.message = "Đã có lỗi xảy ra trong quá trình tìm kiếm căn hộ";
+                return resp;
+            }
+            apartment.Status = ApartmentStatus.Deleted;
+            var residentList = await _context.Resident.Where(r => r.ApartmentId == apartment.Id && r.Status == ResidentStatus.Active).ToListAsync();
+            foreach (var res in residentList)
+            {
+                res.Status = ResidentStatus.Deleted;
+            }
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception)
+            {
+                resp.code = -1;
+                resp.message = "Đã có lỗi xảy ra trong quá trình xóa căn hộ mã " + apartment.ApartmentCode;
+                return resp;
+            }
+            resp.code = 1;
+            resp.message = "Xóa căn hộ mã " + apartment.ApartmentCode + " thành công";
             return resp;
         }
     }

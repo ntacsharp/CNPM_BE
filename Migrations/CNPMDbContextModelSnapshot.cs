@@ -139,6 +139,70 @@ namespace CNPM_BE.Migrations
                     b.ToTable("app_user", (string)null);
                 });
 
+            modelBuilder.Entity("CNPM_BE.Models.Resident", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ApartmentId")
+                        .HasColumnType("integer")
+                        .HasColumnName("apartment_id");
+
+                    b.Property<DateTime>("BirthDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("birth_date");
+
+                    b.Property<string>("Career")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("career");
+
+                    b.Property<DateTime>("CreatedTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_time");
+
+                    b.Property<int>("CreatorId")
+                        .HasColumnType("integer")
+                        .HasColumnName("creator_id");
+
+                    b.Property<DateTime?>("DeletedTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_time");
+
+                    b.Property<int>("Gender")
+                        .HasColumnType("integer")
+                        .HasColumnName("gender");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("name");
+
+                    b.Property<string>("ResidentCode")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("resident_code");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer")
+                        .HasColumnName("status");
+
+                    b.HasKey("Id")
+                        .HasName("pk_resident");
+
+                    b.HasIndex("ApartmentId")
+                        .HasDatabaseName("ix_resident_apartment_id");
+
+                    b.HasIndex("CreatorId")
+                        .HasDatabaseName("ix_resident_creator_id");
+
+                    b.ToTable("resident", (string)null);
+                });
+
             modelBuilder.Entity("CNPM_BE.Models.Apartment", b =>
                 {
                     b.HasOne("CNPM_BE.Models.AppUser", null)
@@ -147,6 +211,23 @@ namespace CNPM_BE.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_apartment_app_user_app_user_id");
+                });
+
+            modelBuilder.Entity("CNPM_BE.Models.Resident", b =>
+                {
+                    b.HasOne("CNPM_BE.Models.Apartment", null)
+                        .WithMany()
+                        .HasForeignKey("ApartmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_resident_apartment_apartment_id");
+
+                    b.HasOne("CNPM_BE.Models.AppUser", null)
+                        .WithMany()
+                        .HasForeignKey("CreatorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_resident_app_user_app_user_id");
                 });
 #pragma warning restore 612, 618
         }
