@@ -62,7 +62,6 @@ namespace CNPM_BE.Services
             }
             apartment.RoomCount = req.RoomCount;
             apartment.Price = req.Price;
-            apartment.Status = (ApartmentStatus)req.Status;
             try
             {
                 await _context.SaveChangesAsync();
