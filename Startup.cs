@@ -39,9 +39,10 @@ namespace CNPM_BE
             });
             services.AddScoped<UserService>();
             services.AddScoped<ApartmentService>();
-            //services.AddScoped<DonationService>();
             services.AddScoped<ManagementService>();
+            services.AddScoped<VehicleService>();
             //services.AddScoped<FeeService>();
+            //services.AddScoped<DonationService>();
             services.AddScoped<TimeConverterService>();
             services.AddControllersWithViews();
             services.AddRazorPages();

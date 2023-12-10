@@ -84,7 +84,16 @@ namespace CNPM_BE.Services
             }
             var apartment = await _context.Apartment.FirstOrDefaultAsync(a => a.Id == resident.ApartmentId);
             var count = await _context.Resident.Where(r => r.ApartmentId == resident.ApartmentId && r.Status != ResidentStatus.Deleted).CountAsync();
-            if (count <= 1) apartment.Status = ApartmentStatus.Unoccupied;
+            if (count <= 1)
+            {
+                apartment.Status = ApartmentStatus.Unoccupied;
+                apartment.OwnerId = null;
+            }
+            else
+            {
+                var newOwner = await _context.Resident.FirstOrDefaultAsync(r => r.ApartmentId == apartment.Id && r.CreatorId == user.Id && r.Status == ResidentStatus.Active);
+                apartment.OwnerId = newOwner.Id;
+            }
             resident.Status = ResidentStatus.Deleted;
             resident.DeletedTime = await _timeConverterService.ConvertToUTCTime(DateTime.Now);
             var vehicleList = await _context.Vehicle.Where(v => v.OwnerId == resident.Id && v.CreatorId == user.Id && v.Status == VehicleStatus.Active).ToListAsync();
