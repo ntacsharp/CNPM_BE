@@ -9,9 +9,11 @@ namespace CNPM_BE.Services
     public class ApartmentService
     {
         private readonly CNPMDbContext _context;
-        public ApartmentService(CNPMDbContext context)
+        private readonly TimeConverterService _timeConverterService;
+        public ApartmentService(CNPMDbContext context, TimeConverterService timeConverterService)
         {
             _context = context;
+            _timeConverterService = timeConverterService;
         }
         public async Task<ApiResp> AddApartment(AppUser user, ApartmentCreateReq req)
         {
@@ -46,9 +48,41 @@ namespace CNPM_BE.Services
             resp.message = "Thêm căn hộ mã " + req.ApartmentCode + " thành công";
             return resp;
         }
-        public async Task<List<ApartmentResp>> GetApartmentList(AppUser user)
+        public async Task<ApiResp> RemoveApartment(AppUser user, ApartmentDeleteReq req)
         {
-            var resp = await _context.Apartment.Where(a => a.CreatorId == user.Id && a.Status != ApartmentStatus.Deleted).Select(a => new ApartmentResp(a)).ToListAsync();
+            var resp = new ApiResp();
+            var apartment = await _context.Apartment.FirstOrDefaultAsync(a => a.Id == req.Id && a.CreatorId == user.Id && a.Status != ApartmentStatus.Deleted);
+            if (apartment == null)
+            {
+                resp.code = -1;
+                resp.message = "Đã có lỗi xảy ra trong quá trình tìm kiếm căn hộ";
+                return resp;
+            }
+            apartment.Status = ApartmentStatus.Deleted;
+            var residentList = await _context.Resident.Where(r => r.ApartmentId == apartment.Id && r.Status == ResidentStatus.Active).ToListAsync();
+            foreach (var res in residentList)
+            {
+                res.Status = ResidentStatus.Deleted;
+                res.DeletedTime = await _timeConverterService.ConvertToUTCTime(DateTime.Now);
+                var vehicleList = await _context.Vehicle.Where(v => v.OwnerId == res.Id && v.CreatorId == user.Id && v.Status == VehicleStatus.Active).ToListAsync();
+                foreach (var vehicle in vehicleList)
+                {
+                    vehicle.Status = VehicleStatus.Deleted;
+                    vehicle.DeletedTime = await _timeConverterService.ConvertToUTCTime(DateTime.Now);
+                }
+            }
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception)
+            {
+                resp.code = -1;
+                resp.message = "Đã có lỗi xảy ra trong quá trình xóa căn hộ mã " + apartment.ApartmentCode;
+                return resp;
+            }
+            resp.code = 1;
+            resp.message = "Xóa căn hộ mã " + apartment.ApartmentCode + " thành công";
             return resp;
         }
         public async Task<ApiResp> UpdateInformation(AppUser user, ApartmentUpdateReq req)
@@ -77,34 +111,9 @@ namespace CNPM_BE.Services
             resp.message = "Cập nhật thông tin căn hộ mã " + apartment.ApartmentCode + " thành công";
             return resp;
         }
-        public async Task<ApiResp> RemoveApartment (AppUser user, ApartmentDeleteReq req)
+        public async Task<List<ApartmentResp>> GetApartmentList(AppUser user)
         {
-            var resp = new ApiResp();
-            var apartment = await _context.Apartment.FirstOrDefaultAsync(a => a.Id == req.Id && a.CreatorId == user.Id && a.Status != ApartmentStatus.Deleted);
-            if (apartment == null)
-            {
-                resp.code = -1;
-                resp.message = "Đã có lỗi xảy ra trong quá trình tìm kiếm căn hộ";
-                return resp;
-            }
-            apartment.Status = ApartmentStatus.Deleted;
-            var residentList = await _context.Resident.Where(r => r.ApartmentId == apartment.Id && r.Status == ResidentStatus.Active).ToListAsync();
-            foreach (var res in residentList)
-            {
-                res.Status = ResidentStatus.Deleted;
-            }
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (Exception)
-            {
-                resp.code = -1;
-                resp.message = "Đã có lỗi xảy ra trong quá trình xóa căn hộ mã " + apartment.ApartmentCode;
-                return resp;
-            }
-            resp.code = 1;
-            resp.message = "Xóa căn hộ mã " + apartment.ApartmentCode + " thành công";
+            var resp = await _context.Apartment.Where(a => a.CreatorId == user.Id && a.Status != ApartmentStatus.Deleted).Select(a => new ApartmentResp(a)).ToListAsync();
             return resp;
         }
     }

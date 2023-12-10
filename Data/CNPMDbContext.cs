@@ -14,6 +14,8 @@ namespace CNPM_BE.Data
         public DbSet<AppUser> AppUser { get; set; }
         public DbSet<Apartment> Apartment { get; set; }
         public DbSet<Resident> Resident { get; set; }
+        public DbSet<VehicleType> VehicleType { get; set; }
+        public DbSet<Vehicle> Vehicle { get; set; }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) =>
             optionsBuilder.UseSnakeCaseNamingConvention();
         protected override void OnModelCreating(ModelBuilder modelBuilder) 
@@ -32,6 +34,21 @@ namespace CNPM_BE.Data
                 .HasOne<Apartment>()
                 .WithMany()
                 .HasForeignKey(x => x.ApartmentId)
+                .IsRequired();
+            modelBuilder.Entity<Vehicle>()
+                .HasOne<AppUser>()
+                .WithMany()
+                .HasForeignKey(x => x.CreatorId)
+                .IsRequired();
+            modelBuilder.Entity<Vehicle>()
+                .HasOne<Resident>()
+                .WithMany()
+                .HasForeignKey(x => x.OwnerId)
+                .IsRequired();
+            modelBuilder.Entity<Vehicle>()
+                .HasOne<VehicleType>()
+                .WithMany()
+                .HasForeignKey(x => x.VehicleTypeId)
                 .IsRequired();
         }
     }
