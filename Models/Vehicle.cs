@@ -8,6 +8,7 @@
         public string Plate { get; set; }
         public int OwnerId { get; set; }
         public int CreatorId { get; set; }
+        public int ApartmentId { get; set; }
         public VehicleStatus Status { get; set; }
         public int VehicleTypeId { get; set; }
         public DateTime CreatedTime { get; set; }

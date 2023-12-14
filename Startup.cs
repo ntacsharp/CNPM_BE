@@ -37,13 +37,15 @@ namespace CNPM_BE
                 options.ForwardedHeaders =
                     ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
             });
+
             services.AddScoped<UserService>();
             services.AddScoped<ApartmentService>();
             services.AddScoped<ManagementService>();
             services.AddScoped<VehicleService>();
-            //services.AddScoped<FeeService>();
+            services.AddScoped<FeeService>();
             //services.AddScoped<DonationService>();
             services.AddScoped<TimeConverterService>();
+
             services.AddControllersWithViews();
             services.AddRazorPages();
             services.AddDatabaseDeveloperPageExceptionFilter();

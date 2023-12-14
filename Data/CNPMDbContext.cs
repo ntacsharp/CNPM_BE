@@ -16,6 +16,11 @@ namespace CNPM_BE.Data
         public DbSet<Resident> Resident { get; set; }
         public DbSet<VehicleType> VehicleType { get; set; }
         public DbSet<Vehicle> Vehicle { get; set; }
+        public DbSet<Fee> Fee { get; set; }
+        public DbSet<ServiceFee> ServiceFee { get; set; }
+        public DbSet<ServiceFeeType> ServiceFeeType { get; set; }
+        public DbSet<FeePayment> FeePayment { get; set; }
+        public DbSet<Contribution> Contribution { get; set; }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) =>
             optionsBuilder.UseSnakeCaseNamingConvention();
         protected override void OnModelCreating(ModelBuilder modelBuilder) 
@@ -49,6 +54,86 @@ namespace CNPM_BE.Data
                 .HasOne<VehicleType>()
                 .WithMany()
                 .HasForeignKey(x => x.VehicleTypeId)
+                .IsRequired();
+            modelBuilder.Entity<ServiceFeeType>()
+                .HasOne<AppUser>()
+                .WithMany()
+                .HasForeignKey(x => x.CreatorId)
+                .IsRequired();
+            modelBuilder.Entity<ServiceFee>()
+                .HasOne<AppUser>()
+                .WithMany()
+                .HasForeignKey(x => x.CreatorId)
+                .IsRequired();
+            modelBuilder.Entity<ServiceFee>()
+                .HasOne<ServiceFeeType>()
+                .WithMany()
+                .HasForeignKey(x => x.TypeId)
+                .IsRequired();
+            modelBuilder.Entity<ServiceFee>()
+                .HasOne<Fee>()
+                .WithMany()
+                .HasForeignKey(x => x.FeeId)
+                .IsRequired();
+            modelBuilder.Entity<Fee>()
+                .HasOne<AppUser>()
+                .WithMany()
+                .HasForeignKey(x => x.CreatorId)
+                .IsRequired();
+            modelBuilder.Entity<Fee>()
+                .HasOne<Apartment>()
+                .WithMany()
+                .HasForeignKey(x => x.ApartmentId)
+                .IsRequired();
+            modelBuilder.Entity<Contribution>()
+                .HasOne<Apartment>()
+                .WithMany()
+                .HasForeignKey(x => x.ApartmentId)
+                .IsRequired();
+            modelBuilder.Entity<Contribution>()
+                .HasOne<AppUser>()
+                .WithMany()
+                .HasForeignKey(x => x.CreatorId)
+                .IsRequired();
+            modelBuilder.Entity<Fee>()
+                .HasOne<Apartment>()
+                .WithMany()
+                .HasForeignKey(x => x.ApartmentId)
+                .IsRequired();
+            modelBuilder.Entity<Fee>()
+                .HasOne<AppUser>()
+                .WithMany()
+                .HasForeignKey(x => x.CreatorId)
+                .IsRequired();
+            modelBuilder.Entity<ServiceFee>()
+                .HasOne<Fee>()
+                .WithMany()
+                .HasForeignKey(x => x.FeeId)
+                .IsRequired();
+            modelBuilder.Entity<ServiceFee>()
+                .HasOne<AppUser>()
+                .WithMany()
+                .HasForeignKey(x => x.CreatorId)
+                .IsRequired();
+            modelBuilder.Entity<ServiceFee>()
+                .HasOne<ServiceFeeType>()
+                .WithMany()
+                .HasForeignKey(x => x.TypeId)
+                .IsRequired();
+            modelBuilder.Entity<ServiceFeeType>()
+                .HasOne<AppUser>()
+                .WithMany()
+                .HasForeignKey(x => x.CreatorId)
+                .IsRequired();
+            modelBuilder.Entity<FeePayment>()
+                .HasOne<AppUser>()
+                .WithMany()
+                .HasForeignKey(x => x.CreatorId)
+                .IsRequired();
+            modelBuilder.Entity<FeePayment>()
+                .HasOne<Fee>()
+                .WithMany()
+                .HasForeignKey(x => x.FeeId)
                 .IsRequired();
         }
     }

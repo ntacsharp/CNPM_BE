@@ -44,15 +44,15 @@ namespace CNPM_BE.Controllers
             return Ok(resp);
         }
         [HttpPost]
-        [ActionName("UpdateInformation")]
-        public async Task<ActionResult> UpdateInformation(VehicleUpdateReq req)
+        [ActionName("UpdateVehicleInformation")]
+        public async Task<ActionResult> UpdateVehicleInformation(VehicleUpdateReq req)
         {
             var user = await _userService.GetUser();
             if (user == null)
             {
                 return NotFound();
             }
-            var resp = await _vehicleService.UpdateInformation(user, req);
+            var resp = await _vehicleService.UpdateVehicleInformation(user, req);
             if (resp == null) return BadRequest();
             return Ok(resp);
         }
@@ -66,6 +66,58 @@ namespace CNPM_BE.Controllers
                 return NotFound();
             }
             var resp = await _vehicleService.GetVehicleList(user);
+            if (resp == null) return BadRequest();
+            return Ok(resp);
+        }
+        [HttpPost]
+        [ActionName("AddVehicleType")]
+        public async Task<ActionResult> AddVehicleType(VehicleTypeCreateReq req)
+        {
+            var user = await _userService.GetUser();
+            if (user == null)
+            {
+                return NotFound();
+            }
+            var resp = await _vehicleService.AddVehicleType(user, req);
+            if (resp == null) return BadRequest();
+            return Ok(resp);
+        }
+        [HttpPost]
+        [ActionName("RemoveVehicleType")]
+        public async Task<ActionResult> RemoveVehicleType(VehicleTypeDeleteReq req)
+        {
+            var user = await _userService.GetUser();
+            if (user == null)
+            {
+                return NotFound();
+            }
+            var resp = await _vehicleService.RemoveVehicleType(user, req);
+            if (resp == null) return BadRequest();
+            return Ok(resp);
+        }
+        [HttpPost]
+        [ActionName("UpdateVehicleTypeInformation")]
+        public async Task<ActionResult> UpdateVehicleTypeInformation(VehicleTypeUpdateReq req)
+        {
+            var user = await _userService.GetUser();
+            if (user == null)
+            {
+                return NotFound();
+            }
+            var resp = await _vehicleService.UpdateVehicleTypeInformation(user, req);
+            if (resp == null) return BadRequest();
+            return Ok(resp);
+        }
+        [HttpGet]
+        [ActionName("GetVehicleTypeList")]
+        public async Task<ActionResult> GetVehicleTypeList()
+        {
+            var user = await _userService.GetUser();
+            if (user == null)
+            {
+                return NotFound();
+            }
+            var resp = await _vehicleService.GetVehicleTypeList(user);
             if (resp == null) return BadRequest();
             return Ok(resp);
         }
