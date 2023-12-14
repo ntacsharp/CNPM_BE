@@ -14,8 +14,9 @@
     {
         Resident,
         Apartment,
+        M2,
         Number,
-        M2
+        M3
     }
     public enum ServiceFeeTypeStatus
     {

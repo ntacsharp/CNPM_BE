@@ -18,10 +18,12 @@ namespace CNPM_BE.Services
         HashAlgorithmName hashAlgorithm = HashAlgorithmName.SHA512;
         private readonly CNPMDbContext _context;
         private readonly IConfiguration _config;
-        public UserService(CNPMDbContext context, IConfiguration config)
+        private readonly FeeService _feeService;
+        public UserService(CNPMDbContext context, IConfiguration config, FeeService feeService)
         {
             _context = context;
             _config = config;
+            _feeService = feeService;
         }
         public async Task<bool> VerifyPassword(AppUser user, string password)
         {
@@ -64,7 +66,8 @@ namespace CNPM_BE.Services
             {
                 return null;
             }
-            
+            newUser = await _context.AppUser.OrderBy(a => a.Id).LastOrDefaultAsync();
+            await _feeService.AddDefaultServiceFeeType(newUser);
             resp.code = 1;
             resp.message = "Đăng ký thành công";
             return resp;

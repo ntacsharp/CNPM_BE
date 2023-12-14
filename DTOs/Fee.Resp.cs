@@ -17,5 +17,6 @@
         public int ServiceFee { get; set; }
         public int ReceivedAmount { get; set; }
         public List<ServiceFeeResp> ServiceFeeList { get; set; }
+        public List<FeePaymentResp> FeePaymentList { get; set; }
     }
 }

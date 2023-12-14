@@ -156,6 +156,7 @@ namespace CNPM_BE.Services
                         newServiceFee.TotalFee = 0;
                         if (serviceType.MeasuringUnit == MeasuringUnit.Apartment) newServiceFee.TotalFee = serviceType.PricePerUnit;
                         else if (serviceType.MeasuringUnit == MeasuringUnit.Resident) newServiceFee.TotalFee = serviceType.PricePerUnit * residentCount;
+                        else if (serviceType.MeasuringUnit == MeasuringUnit.M2) newServiceFee.TotalFee = (int)(serviceType.PricePerUnit * apartment.Area);
                         newServiceFee.Status = ServiceFeeStatus.Active;
                         try
                         {
@@ -290,7 +291,9 @@ namespace CNPM_BE.Services
                 var apartment = await _context.Apartment.FirstOrDefaultAsync(a => a.Id == fee.ApartmentId);
                 var owner = await _context.Resident.FirstOrDefaultAsync(r => r.Id == apartment.OwnerId);
                 var serviceFeeList = await _context.ServiceFee.Where(f => f.FeeId == fee.Id && f.Status == ServiceFeeStatus.Active).ToListAsync();
+                var paymentList = await _context.FeePayment.Where(f => f.FeeId == fee.Id && f.Status == FeePaymentStatus.Active).ToListAsync();
                 var list = new List<ServiceFeeResp>();
+                var flist = new List<FeePaymentResp>();
                 feeResp.Id = fee.Id;
                 feeResp.ApartmentCode = apartment.ApartmentCode;
                 feeResp.Area = apartment.Area;
@@ -318,6 +321,14 @@ namespace CNPM_BE.Services
                     list.Add(serviceFeeResp);
                 }
                 feeResp.ServiceFeeList = list;
+                foreach(var payment in paymentList)
+                {
+                    var fpr = new FeePaymentResp();
+                    fpr.Id = payment.Id;
+                    fpr.Amount = payment.Amount;
+                    flist.Add(fpr);
+                }
+                feeResp.FeePaymentList = flist;
                 feeResp.TotalFee = feeResp.ManagementFee + feeResp.ParkingFee + feeResp.ServiceFee;
                 if (feeResp.ReceivedAmount >= feeResp.TotalFee) fee.Status = FeeStatus.Paid;
                 else if(fee.ExpiredDate <= await _timeConverterService.ConvertToUTCTime(DateTime.Now)) fee.Status = FeeStatus.Expired;
@@ -360,6 +371,41 @@ namespace CNPM_BE.Services
             resp.code = 1;
             resp.message = "Thu phí thành công";
             return resp;
+        }
+        public async Task AddDefaultServiceFeeType(AppUser user)
+        {
+            var newServiceType1 = new ServiceFeeType();
+            newServiceType1.Status = ServiceFeeTypeStatus.Active;
+            newServiceType1.CreatorId = user.Id;
+            newServiceType1.PricePerUnit = 0;
+            newServiceType1.Name = "Dịch vụ chung cư";
+            newServiceType1.ServiceFeeTypeCode = "ST001";
+            newServiceType1.MeasuringUnit = MeasuringUnit.M2;
+            var newServiceType2 = new ServiceFeeType();
+            newServiceType2.Status = ServiceFeeTypeStatus.Active;
+            newServiceType2.CreatorId = user.Id;
+            newServiceType2.PricePerUnit = 0;
+            newServiceType2.Name = "Tiền điện";
+            newServiceType2.ServiceFeeTypeCode = "ST002";
+            newServiceType2.MeasuringUnit = MeasuringUnit.Number;
+            var newServiceType3 = new ServiceFeeType();
+            newServiceType3.Status = ServiceFeeTypeStatus.Active;
+            newServiceType3.CreatorId = user.Id;
+            newServiceType3.PricePerUnit = 0;
+            newServiceType3.Name = "Tiền nước";
+            newServiceType3.ServiceFeeTypeCode = "ST003";
+            newServiceType3.MeasuringUnit = MeasuringUnit.M3;
+            try
+            {
+                await _context.ServiceFeeType.AddAsync(newServiceType1);
+                await _context.ServiceFeeType.AddAsync(newServiceType2);
+                await _context.ServiceFeeType.AddAsync(newServiceType3);
+                await _context.SaveChangesAsync();
+            }
+            catch(Exception ex)
+            {
+                return;
+            }
         }
     }
 }
