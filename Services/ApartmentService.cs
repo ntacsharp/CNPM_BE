@@ -15,10 +15,10 @@ namespace CNPM_BE.Services
             _context = context;
             _timeConverterService = timeConverterService;
         }
-        public async Task<ApiResp> AddApartment(AppUser user, ApartmentCreateReq req)
+        public async Task<ApiResponseExpose<Apartment>> AddApartment(AppUser user, ApartmentCreateReq req)
         {
-            var resp = new ApiResp();
-            var newApartment = new Apartment();
+            var resp = new ApiResponseExpose<Apartment>();
+
             var ex = await _context.Apartment.FirstOrDefaultAsync(a => a.CreatorId == user.Id && a.ApartmentCode == req.ApartmentCode && a.Status != ApartmentStatus.Deleted);
             if(ex != null)
             {
@@ -26,6 +26,8 @@ namespace CNPM_BE.Services
                 resp.message = "Đã tồn tại căn hộ với mã " + req.ApartmentCode;
                 return resp;
             }
+
+            var newApartment = new Apartment();
             newApartment.CreatorId = user.Id;
             newApartment.ApartmentCode = req.ApartmentCode;
             newApartment.Position = req.Position;
@@ -44,20 +46,25 @@ namespace CNPM_BE.Services
                 resp.message = "Đã có lỗi xảy ra trong quá trình thêm căn hộ mã " + req.ApartmentCode;
                 return resp;
             }
+
             resp.code = 1;
             resp.message = "Thêm căn hộ mã " + req.ApartmentCode + " thành công";
+            resp.entity = newApartment;
+
             return resp;
         }
-        public async Task<ApiResp> RemoveApartment(AppUser user, ApartmentDeleteReq req)
+        public async Task<ApiResponseExpose<Apartment>> RemoveApartment(AppUser user, int req)
         {
-            var resp = new ApiResp();
-            var apartment = await _context.Apartment.FirstOrDefaultAsync(a => a.Id == req.Id && a.CreatorId == user.Id && a.Status != ApartmentStatus.Deleted);
+            var resp = new ApiResponseExpose<Apartment>();
+
+            var apartment = await _context.Apartment.FirstOrDefaultAsync(a => a.Id == req && a.CreatorId == user.Id && a.Status != ApartmentStatus.Deleted);
             if (apartment == null)
             {
                 resp.code = -1;
                 resp.message = "Đã có lỗi xảy ra trong quá trình tìm kiếm căn hộ";
                 return resp;
             }
+
             apartment.Status = ApartmentStatus.Deleted;
             var residentList = await _context.Resident.Where(r => r.ApartmentId == apartment.Id && r.Status == ResidentStatus.Active).ToListAsync();
             foreach (var res in residentList)
@@ -81,13 +88,17 @@ namespace CNPM_BE.Services
                 resp.message = "Đã có lỗi xảy ra trong quá trình xóa căn hộ mã " + apartment.ApartmentCode;
                 return resp;
             }
+
             resp.code = 1;
             resp.message = "Xóa căn hộ mã " + apartment.ApartmentCode + " thành công";
+            resp.entity = apartment;
+
             return resp;
         }
-        public async Task<ApiResp> UpdateInformation(AppUser user, ApartmentUpdateReq req)
+        public async Task<ApiResponseExpose<Apartment>> UpdateInformation(AppUser user, Apartment req)
         {
-            var resp = new ApiResp();
+            var resp = new ApiResponseExpose<Apartment>();
+
             var apartment = await _context.Apartment.FirstOrDefaultAsync(a => a.Id == req.Id && a.CreatorId == user.Id && a.Status != ApartmentStatus.Deleted);
             if (apartment == null)
             {
@@ -95,8 +106,12 @@ namespace CNPM_BE.Services
                 resp.message = "Đã có lỗi xảy ra trong quá trình tìm kiếm căn hộ";
                 return resp;
             }
+
             apartment.RoomCount = req.RoomCount;
             apartment.Price = req.Price;
+            apartment.Area = req.Area;
+            apartment.Position = req.Position;
+
             try
             {
                 await _context.SaveChangesAsync();
@@ -109,6 +124,8 @@ namespace CNPM_BE.Services
             }
             resp.code = 1;
             resp.message = "Cập nhật thông tin căn hộ mã " + apartment.ApartmentCode + " thành công";
+            resp.entity = apartment;
+
             return resp;
         }
         public async Task<List<ApartmentResp>> GetApartmentList(AppUser user)

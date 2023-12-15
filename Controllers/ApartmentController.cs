@@ -1,12 +1,13 @@
 ﻿using CNPM_BE.Data;
 using CNPM_BE.DTOs;
+using CNPM_BE.Models;
 using CNPM_BE.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CNPM_BE.Controllers
 {
     [ApiController]
-    [Route("api/[controller]/[action]/")]
+    [Route("api/[controller]/")]
     public class ApartmentController : ControllerBase
     {
         private readonly CNPMDbContext _context;
@@ -18,8 +19,8 @@ namespace CNPM_BE.Controllers
             _userService = userService;
             _apartmentService = apartmentService;
         }
+
         [HttpPost]
-        [ActionName("AddApartment")]
         public async Task<ActionResult> AddApartment(ApartmentCreateReq req)
         {
             var user = await _userService.GetUser();
@@ -32,7 +33,6 @@ namespace CNPM_BE.Controllers
             return Ok(resp);
         }
         [HttpGet]
-        [ActionName("GetApartmentList")]
         public async Task<ActionResult> GetApartmentList()
         {
             var user = await _userService.GetUser();
@@ -44,9 +44,8 @@ namespace CNPM_BE.Controllers
             if (resp == null) return BadRequest();
             return Ok(resp);
         }
-        [HttpPost]
-        [ActionName("UpdateInformation")]
-        public async Task<ActionResult> UpdateInformation(ApartmentUpdateReq req)
+        [HttpPut]
+        public async Task<ActionResult> UpdateInformation(Apartment req)
         {
             var user = await _userService.GetUser();
             if (user == null)
@@ -57,9 +56,9 @@ namespace CNPM_BE.Controllers
             if (resp == null) return BadRequest();
             return Ok(resp);
         }
-        [HttpPost]
-        [ActionName("RemoveApartment")]
-        public async Task<ActionResult> RemoveApartment(ApartmentDeleteReq req)
+
+        [HttpDelete("{req}")]
+        public async Task<ActionResult> RemoveApartment([FromRoute] int req)
         {
             var user = await _userService.GetUser();
             if (user == null)
