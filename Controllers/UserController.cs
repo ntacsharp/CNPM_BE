@@ -32,7 +32,7 @@ namespace CNPM_BE.Controllers
                 return Ok(new LoginResp { code = -1, message = "Sai mật khẩu!" });
             }
             string token = await _userService.CreateToken(user);
-            return Ok(new LoginResp { Token = token });
+            return Ok(new LoginResp { Token = token, entity = user });
         }
         [HttpPost]
         [ActionName("Register")]
