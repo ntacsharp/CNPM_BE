@@ -18,7 +18,6 @@ namespace CNPM_BE.Migrations
                 {
                     id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    user_code = table.Column<string>(type: "text", nullable: false),
                     username = table.Column<string>(type: "text", nullable: false),
                     email = table.Column<string>(type: "text", nullable: false),
                     password_hash = table.Column<string>(type: "text", nullable: false),
