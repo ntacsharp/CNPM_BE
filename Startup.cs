@@ -43,7 +43,7 @@ namespace CNPM_BE
             services.AddScoped<ManagementService>();
             services.AddScoped<VehicleService>();
             services.AddScoped<FeeService>();
-            //services.AddScoped<DonationService>();
+            services.AddScoped<ContributionService>();
             services.AddScoped<TimeConverterService>();
 
             services.AddControllersWithViews();

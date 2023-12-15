@@ -32,6 +32,8 @@ namespace CNPM_BE.Services
             newServiceFeeType.Name = req.Name;
             newServiceFeeType.PricePerUnit = req.PricePerUnit;
             newServiceFeeType.MeasuringUnit = (MeasuringUnit)req.MeasuringUnit;
+            newServiceFeeType.CreatorId = user.Id;
+            newServiceFeeType.Status = ServiceFeeTypeStatus.Active; 
             try
             {
                 await _context.ServiceFeeType.AddAsync(newServiceFeeType);
@@ -144,13 +146,14 @@ namespace CNPM_BE.Services
                         resp.message = "Đã có lỗi xảy ra trong quá trình thêm bản thu phí";
                         return resp;
                     }
-                    newFee = await _context.Fee.OrderBy(f => f.Id).LastOrDefaultAsync(f => f.CreatorId == user.Id);
+                    newFee = await _context.Fee.OrderBy(f => f.Id).LastOrDefaultAsync(f => f.CreatorId == user.Id && f.Status != FeeStatus.Deleted);
                     
                     foreach (var serviceType in serviceTypeList)
                     {
                         var newServiceFee = new ServiceFee();
                         newServiceFee.CreatorId = user.Id;
                         newServiceFee.FeeId = newFee.Id;
+                        newServiceFee.TypeId = serviceType.Id;
                         newServiceFee.OldCount = 0;
                         newServiceFee.NewCount = 0;
                         newServiceFee.TotalFee = 0;
@@ -186,6 +189,7 @@ namespace CNPM_BE.Services
                             serviceFee = new ServiceFee();
                             serviceFee.CreatorId = user.Id;
                             serviceFee.FeeId = fee.Id;
+                            serviceFee.TypeId = serviceType.Id;
                             serviceFee.OldCount = 0;
                             serviceFee.NewCount = 0;
                             serviceFee.TotalFee = 0;
@@ -335,6 +339,7 @@ namespace CNPM_BE.Services
                 if (fee.Status == FeeStatus.OnGoing) feeResp.Status = "Còn hạn";
                 else if (fee.Status == FeeStatus.Expired) feeResp.Status = "Quá hạn";
                 else if (fee.Status == FeeStatus.Paid) feeResp.Status = "Hoàn thiện";
+                resp.Add(feeResp);
             }
             try
             {
