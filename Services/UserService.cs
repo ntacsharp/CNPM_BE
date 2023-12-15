@@ -66,8 +66,6 @@ namespace CNPM_BE.Services
             {
                 return null;
             }
-            newUser = await _context.AppUser.OrderBy(a => a.Id).LastOrDefaultAsync();
-            await _feeService.AddDefaultServiceFeeType(newUser);
             resp.code = 1;
             resp.message = "Đăng ký thành công";
             return resp;

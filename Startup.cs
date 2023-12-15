@@ -64,6 +64,16 @@ namespace CNPM_BE
                 };
                 //services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).
             });
+            services.AddCors(options =>
+            {
+                options.AddPolicy(name: MyAllowSpecificOrigins,
+                builder =>
+                {
+                    builder.WithOrigins(Configuration["AllowedHosts"])
+                                      .AllowAnyHeader()
+                                      .AllowAnyMethod();
+                });
+            });
         } 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
