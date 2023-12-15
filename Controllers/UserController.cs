@@ -24,12 +24,12 @@ namespace CNPM_BE.Controllers
             var user = await _context.AppUser.FirstOrDefaultAsync(u => u.Username == req.UsernameOrEmail || u.Email == req.UsernameOrEmail);
             if (user == null)
             {
-                return Ok("Người dùng không tồn tại!");
+                return Ok(new LoginResp { code = -1, message = "Người dùng không tồn tại!" });
             }
             var isCorrect = await _userService.VerifyPassword(user, req.Password);
             if (!isCorrect)
             {
-                return Ok("Sai mật khẩu!");
+                return Ok(new LoginResp { code = -1, message = "Sai mật khẩu!" });
             }
             string token = await _userService.CreateToken(user);
             return Ok(new LoginResp { Token = token });

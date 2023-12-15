@@ -17,18 +17,18 @@ namespace CNPM_BE.Models
                 serviceProvider.GetRequiredService<
                     DbContextOptions<CNPMDbContext>>()))
             {
-                if(context.VehicleType.Any())
-                {
-                    return; //DB has been seeded
-                }
-                var vt1 = new VehicleType();
-                vt1.Name = "Xe ô tô";
-                vt1.ParkingFee = 1200000;
-                await context.VehicleType.AddAsync(vt1);
-                var vt2 = new VehicleType();
-                vt2.Name = "Xe máy";
-                vt2.ParkingFee = 70000;
-                await context.VehicleType.AddAsync(vt2);
+                //if(context.VehicleType.Any())
+                //{
+                //    return; //DB has been seeded
+                //}
+                //var vt1 = new VehicleType();
+                //vt1.Name = "Xe ô tô";
+                //vt1.ParkingFee = 1200000;
+                //await context.VehicleType.AddAsync(vt1);
+                //var vt2 = new VehicleType();
+                //vt2.Name = "Xe máy";
+                //vt2.ParkingFee = 70000;
+                //await context.VehicleType.AddAsync(vt2);
 
 
                 await context.SaveChangesAsync();

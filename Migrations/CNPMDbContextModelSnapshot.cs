@@ -123,11 +123,6 @@ namespace CNPM_BE.Migrations
                         .HasColumnType("text")
                         .HasColumnName("phone_number");
 
-                    b.Property<string>("UserCode")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("user_code");
-
                     b.Property<string>("Username")
                         .IsRequired()
                         .HasColumnType("text")

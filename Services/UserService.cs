@@ -34,7 +34,7 @@ namespace CNPM_BE.Services
         {
             var resp = new ApiResp();
             var count = await _context.AppUser.CountAsync();
-            var exUser = await _context.AppUser.FirstOrDefaultAsync(u => (u.Username == req.Username || u.Email == req.Email));
+            var exUser = await _context.AppUser.FirstOrDefaultAsync(u => (u.Username == req.Username));
             if(exUser != null)
             {
                 resp.code = -1;
@@ -42,7 +42,6 @@ namespace CNPM_BE.Services
                 return resp;
             }
             var newUser = new AppUser();
-            newUser.UserCode = "U" + (count + 1).ToString().PadLeft(3, '0');
             newUser.Username = req.Username;
             newUser.Email = req.Email;
             newUser.Name = "";
