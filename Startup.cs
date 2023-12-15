@@ -43,7 +43,7 @@ namespace CNPM_BE
             services.AddScoped<ManagementService>();
             services.AddScoped<VehicleService>();
             services.AddScoped<FeeService>();
-            //services.AddScoped<DonationService>();
+            services.AddScoped<ContributionService>();
             services.AddScoped<TimeConverterService>();
 
             services.AddControllersWithViews();
@@ -64,14 +64,15 @@ namespace CNPM_BE
                 };
                 //services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).
             });
-
             services.AddCors(options =>
             {
-                options.AddPolicy(MyAllowSpecificOrigins,
-                                  policy =>
-                                  {
-                                      policy.WithOrigins("*").AllowAnyHeader().AllowAnyMethod();
-                                  });
+                options.AddPolicy(name: MyAllowSpecificOrigins,
+                builder =>
+                {
+                    builder.WithOrigins(Configuration["AllowedHosts"])
+                                      .AllowAnyHeader()
+                                      .AllowAnyMethod();
+                });
             });
         } 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

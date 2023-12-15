@@ -32,6 +32,8 @@ namespace CNPM_BE.Services
             newServiceFeeType.Name = req.Name;
             newServiceFeeType.PricePerUnit = req.PricePerUnit;
             newServiceFeeType.MeasuringUnit = (MeasuringUnit)req.MeasuringUnit;
+            newServiceFeeType.CreatorId = user.Id;
+            newServiceFeeType.Status = ServiceFeeTypeStatus.Active; 
             try
             {
                 await _context.ServiceFeeType.AddAsync(newServiceFeeType);
@@ -144,13 +146,14 @@ namespace CNPM_BE.Services
                         resp.message = "Đã có lỗi xảy ra trong quá trình thêm bản thu phí";
                         return resp;
                     }
-                    newFee = await _context.Fee.OrderBy(f => f.Id).LastOrDefaultAsync(f => f.CreatorId == user.Id);
+                    newFee = await _context.Fee.OrderBy(f => f.Id).LastOrDefaultAsync(f => f.CreatorId == user.Id && f.Status != FeeStatus.Deleted);
                     
                     foreach (var serviceType in serviceTypeList)
                     {
                         var newServiceFee = new ServiceFee();
                         newServiceFee.CreatorId = user.Id;
                         newServiceFee.FeeId = newFee.Id;
+                        newServiceFee.TypeId = serviceType.Id;
                         newServiceFee.OldCount = 0;
                         newServiceFee.NewCount = 0;
                         newServiceFee.TotalFee = 0;
@@ -186,6 +189,7 @@ namespace CNPM_BE.Services
                             serviceFee = new ServiceFee();
                             serviceFee.CreatorId = user.Id;
                             serviceFee.FeeId = fee.Id;
+                            serviceFee.TypeId = serviceType.Id;
                             serviceFee.OldCount = 0;
                             serviceFee.NewCount = 0;
                             serviceFee.TotalFee = 0;
@@ -335,6 +339,7 @@ namespace CNPM_BE.Services
                 if (fee.Status == FeeStatus.OnGoing) feeResp.Status = "Còn hạn";
                 else if (fee.Status == FeeStatus.Expired) feeResp.Status = "Quá hạn";
                 else if (fee.Status == FeeStatus.Paid) feeResp.Status = "Hoàn thiện";
+                resp.Add(feeResp);
             }
             try
             {
@@ -371,41 +376,6 @@ namespace CNPM_BE.Services
             resp.code = 1;
             resp.message = "Thu phí thành công";
             return resp;
-        }
-        public async Task AddDefaultServiceFeeType(AppUser user)
-        {
-            var newServiceType1 = new ServiceFeeType();
-            newServiceType1.Status = ServiceFeeTypeStatus.Active;
-            newServiceType1.CreatorId = user.Id;
-            newServiceType1.PricePerUnit = 0;
-            newServiceType1.Name = "Dịch vụ chung cư";
-            newServiceType1.ServiceFeeTypeCode = "ST001";
-            newServiceType1.MeasuringUnit = MeasuringUnit.M2;
-            var newServiceType2 = new ServiceFeeType();
-            newServiceType2.Status = ServiceFeeTypeStatus.Active;
-            newServiceType2.CreatorId = user.Id;
-            newServiceType2.PricePerUnit = 0;
-            newServiceType2.Name = "Tiền điện";
-            newServiceType2.ServiceFeeTypeCode = "ST002";
-            newServiceType2.MeasuringUnit = MeasuringUnit.Number;
-            var newServiceType3 = new ServiceFeeType();
-            newServiceType3.Status = ServiceFeeTypeStatus.Active;
-            newServiceType3.CreatorId = user.Id;
-            newServiceType3.PricePerUnit = 0;
-            newServiceType3.Name = "Tiền nước";
-            newServiceType3.ServiceFeeTypeCode = "ST003";
-            newServiceType3.MeasuringUnit = MeasuringUnit.M3;
-            try
-            {
-                await _context.ServiceFeeType.AddAsync(newServiceType1);
-                await _context.ServiceFeeType.AddAsync(newServiceType2);
-                await _context.ServiceFeeType.AddAsync(newServiceType3);
-                await _context.SaveChangesAsync();
-            }
-            catch(Exception ex)
-            {
-                return;
-            }
         }
     }
 }

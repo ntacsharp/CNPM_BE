@@ -57,6 +57,22 @@ namespace CNPM_BE.Services
             {
                 apartment.Status = ApartmentStatus.Occupied;
                 apartment.OwnerId = newResident.Id;
+                var con = new Contribution();
+                con.ApartmentId = apartment.Id;
+                con.CreatorId = user.Id;
+                con.Status = ContributionStatus.Active;
+                con.ForThePoor = con.ForVNSeasAndIslands = con.DGFestival = con.ResidentialGroup = con.ForChildren = con.Charity = con.Gratitude = con.StudyPromotion = con.ForTheElderly = 0;
+                try
+                {
+                    await _context.AddAsync(con);
+                    await _context.SaveChangesAsync();
+                }
+                catch (Exception)
+                {
+                    resp.code = -1;
+                    resp.message = "Đã có lỗi xảy ra trong quá trình thêm cư dân mã " + req.ResidentCode;
+                    return resp;
+                }
             }
             try
             {
@@ -88,6 +104,8 @@ namespace CNPM_BE.Services
             {
                 apartment.Status = ApartmentStatus.Unoccupied;
                 apartment.OwnerId = null;
+                var contribution = await _context.Contribution.FirstOrDefaultAsync(c => c.ApartmentId == apartment.Id && c.Status == ContributionStatus.Active);
+                contribution.Status = ContributionStatus.Deleted;
             }
             else
             {
