@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace CNPM_BE.Controllers
 {
     [ApiController]
-    [Route("api/[controller]/[action]/")]
+    [Route("api/[controller]/")]
     public class VehicleController : ControllerBase
     {
         private readonly UserService _userService;
@@ -18,7 +18,6 @@ namespace CNPM_BE.Controllers
             _vehicleService = vehicleService;
         }
         [HttpPost]
-        [ActionName("AddVehicle")]
         public async Task<ActionResult> AddVehicle(VehicleCreateReq req)
         {
             var user = await _userService.GetUser();
@@ -30,34 +29,7 @@ namespace CNPM_BE.Controllers
             if (resp == null) return BadRequest();
             return Ok(resp);
         }
-        [HttpPost]
-        [ActionName("RemoveVehicle")]
-        public async Task<ActionResult> RemoveVehicle(VehicleDeleteReq req)
-        {
-            var user = await _userService.GetUser();
-            if (user == null)
-            {
-                return NotFound();
-            }
-            var resp = await _vehicleService.RemoveVehicle(user, req);
-            if (resp == null) return BadRequest();
-            return Ok(resp);
-        }
-        [HttpPost]
-        [ActionName("UpdateVehicleInformation")]
-        public async Task<ActionResult> UpdateVehicleInformation(VehicleUpdateReq req)
-        {
-            var user = await _userService.GetUser();
-            if (user == null)
-            {
-                return NotFound();
-            }
-            var resp = await _vehicleService.UpdateVehicleInformation(user, req);
-            if (resp == null) return BadRequest();
-            return Ok(resp);
-        }
         [HttpGet]
-        [ActionName("GetVehicleList")]
         public async Task<ActionResult> GetVehicleList()
         {
             var user = await _userService.GetUser();
@@ -69,55 +41,28 @@ namespace CNPM_BE.Controllers
             if (resp == null) return BadRequest();
             return Ok(resp);
         }
-        [HttpPost]
-        [ActionName("AddVehicleType")]
-        public async Task<ActionResult> AddVehicleType(VehicleTypeCreateReq req)
+        [HttpPut]
+        public async Task<ActionResult> UpdateInformation(Vehicle req)
         {
             var user = await _userService.GetUser();
             if (user == null)
             {
                 return NotFound();
             }
-            var resp = await _vehicleService.AddVehicleType(user, req);
+            var resp = await _vehicleService.UpdateVehicleInformation(user, req);
             if (resp == null) return BadRequest();
             return Ok(resp);
         }
-        [HttpPost]
-        [ActionName("RemoveVehicleType")]
-        public async Task<ActionResult> RemoveVehicleType(VehicleTypeDeleteReq req)
+
+        [HttpDelete("{req}")]
+        public async Task<ActionResult> RemoveVehicle([FromRoute] int req)
         {
             var user = await _userService.GetUser();
             if (user == null)
             {
                 return NotFound();
             }
-            var resp = await _vehicleService.RemoveVehicleType(user, req);
-            if (resp == null) return BadRequest();
-            return Ok(resp);
-        }
-        [HttpPost]
-        [ActionName("UpdateVehicleTypeInformation")]
-        public async Task<ActionResult> UpdateVehicleTypeInformation(VehicleTypeUpdateReq req)
-        {
-            var user = await _userService.GetUser();
-            if (user == null)
-            {
-                return NotFound();
-            }
-            var resp = await _vehicleService.UpdateVehicleTypeInformation(user, req);
-            if (resp == null) return BadRequest();
-            return Ok(resp);
-        }
-        [HttpGet]
-        [ActionName("GetVehicleTypeList")]
-        public async Task<ActionResult> GetVehicleTypeList()
-        {
-            var user = await _userService.GetUser();
-            if (user == null)
-            {
-                return NotFound();
-            }
-            var resp = await _vehicleService.GetVehicleTypeList(user);
+            var resp = await _vehicleService.RemoveVehicle(user, req);
             if (resp == null) return BadRequest();
             return Ok(resp);
         }

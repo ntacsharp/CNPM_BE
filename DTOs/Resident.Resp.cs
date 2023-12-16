@@ -9,7 +9,8 @@ namespace CNPM_BE.DTOs
 
         // id căn hộ
         public int ApartmentId { get; set; }
-
+        public string PhoneNumber { get; set; }
+        public string CCCD { get; set; }
         public string Position { get; set; }
         public string Name { get; set; }
         public DateTime BirthDate { get; set; }
@@ -26,6 +27,8 @@ namespace CNPM_BE.DTOs
             BirthDate = resident.BirthDate;
             Career = resident.Career;
             Gender = resident.Gender;
+            PhoneNumber = resident.PhoneNumber;
+            CCCD = resident.CCCD;
         }
     }
 }

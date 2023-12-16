@@ -17,9 +17,9 @@ namespace CNPM_BE.Services
             _timeConverterService = timeConverterService;
             _vehicleService = vehicleService;
         }
-        public async Task<ApiResp> AddServiceFeeType(AppUser user, ServiceFeeTypeCreateReq req)
+        public async Task<ApiResponseExpose<ServiceFeeType>> AddServiceFeeType(AppUser user, ServiceFeeTypeCreateReq req)
         {
-            var resp = new ApiResp();
+            var resp = new ApiResponseExpose<ServiceFeeType>();
             var newServiceFeeType = new ServiceFeeType();
             var ex = await _context.ServiceFeeType.FirstOrDefaultAsync(s => s.ServiceFeeTypeCode == req.ServiceFeeTypeCode && s.CreatorId == user.Id && s.Status == ServiceFeeTypeStatus.Active);
             if (ex != null)
@@ -47,12 +47,13 @@ namespace CNPM_BE.Services
             }
             resp.code = 1;
             resp.message = "Thêm phí dịch vụ mã " + req.ServiceFeeTypeCode + " thành công";
+            resp.entity = newServiceFeeType;
             return resp;
         }
-        public async Task<ApiResp> RemoveServiceFeeType(AppUser user, ServiceFeeTypeDeleteReq req)
+        public async Task<ApiResponseExpose<ServiceFeeType>> RemoveServiceFeeType(AppUser user, int req)
         {
-            var resp = new ApiResp();
-            var serviceFeeType = await _context.ServiceFeeType.FirstOrDefaultAsync(s => s.CreatorId == user.Id && s.Id == req.Id && s.Status == ServiceFeeTypeStatus.Active);
+            var resp = new ApiResponseExpose<ServiceFeeType>();
+            var serviceFeeType = await _context.ServiceFeeType.FirstOrDefaultAsync(s => s.CreatorId == user.Id && s.Id == req && s.Status == ServiceFeeTypeStatus.Active);
             if (serviceFeeType == null)
             {
                 resp.code = -1;
@@ -72,11 +73,12 @@ namespace CNPM_BE.Services
             }
             resp.code = 1;
             resp.message = "Xóa phí dịch vụ thành công";
+            resp.entity = serviceFeeType;
             return resp;
         }
-        public async Task<ApiResp> UpdateServiceFeeTypeInformation(AppUser user, ServiceFeeTypeUpdateReq req)
+        public async Task<ApiResponseExpose<ServiceFeeType>> UpdateServiceFeeTypeInformation(AppUser user, ServiceFeeType req)
         {
-            var resp = new ApiResp();
+            var resp = new ApiResponseExpose<ServiceFeeType>();
             var serviceFeeType = await _context.ServiceFeeType.FirstOrDefaultAsync(v => v.Id == req.Id && v.CreatorId == user.Id && v.Status == ServiceFeeTypeStatus.Active);
             if (serviceFeeType == null)
             {
@@ -98,16 +100,17 @@ namespace CNPM_BE.Services
             }
             resp.code = 1;
             resp.message = "Cập nhật thông tin phí dịch vụ thành công";
+            resp.entity = serviceFeeType;
             return resp;
         }
-        public async Task<List<ServiceFeeTypeResp>> GetServiceTypeList(AppUser user)
+        public async Task<List<ServiceFeeTypeResp>> GetServiceFeeTypeList(AppUser user)
         {
             var resp = await _context.ServiceFeeType.Where(s => s.CreatorId == user.Id && s.Status == ServiceFeeTypeStatus.Active).Select(s => new ServiceFeeTypeResp(s)).ToListAsync();
             return resp;
         }
-        public async Task<ApiResp> AddFee(AppUser user)
+        public async Task<ApiResponseExpose<Fee>> AddFee(AppUser user)
         {
-            var resp = new ApiResp();
+            var resp = new ApiResponseExpose<Fee>();
             var current = await _timeConverterService.ConvertToUTCTime(DateTime.Now);
             var daysInMonth = DateTime.DaysInMonth(current.Year, current.Month);
             DateTime lastDayOfMonth = new DateTime(current.Year, current.Month, daysInMonth);
@@ -222,10 +225,10 @@ namespace CNPM_BE.Services
             resp.message = "Thêm bản thu phí thành công";
             return resp;
         }
-        public async Task<ApiResp> RemoveFee(AppUser user, FeeDeleteReq req)
+        public async Task<ApiResponseExpose<Fee>> RemoveFee(AppUser user, int req)
         {
-            var resp = new ApiResp();
-            var fee = await _context.Fee.FirstOrDefaultAsync(f => f.Id == req.Id && f.CreatorId == user.Id && f.Status != FeeStatus.Deleted);
+            var resp = new ApiResponseExpose<Fee>();
+            var fee = await _context.Fee.FirstOrDefaultAsync(f => f.Id == req && f.CreatorId == user.Id && f.Status != FeeStatus.Deleted);
             if (fee == null)
             {
                 resp.code = -1;
@@ -250,11 +253,12 @@ namespace CNPM_BE.Services
             }
             resp.code = 1;
             resp.message = "Xóa bản thu phí thành công";
+            resp.entity = fee;
             return resp;
         }
-        public async Task<ApiResp> UpdateFeeInformation(AppUser user, FeeUpdateReq req)
+        public async Task<ApiResponseExpose<Fee>> UpdateFeeInformation(AppUser user, Fee req)
         {
-            var resp = new ApiResp();
+            var resp = new ApiResponseExpose<Fee>();
             var fee = await _context.Fee.FirstOrDefaultAsync(f => f.Id == req.Id && f.CreatorId == user.Id && f.Status != FeeStatus.Deleted);
             if (fee == null)
             {
@@ -263,14 +267,6 @@ namespace CNPM_BE.Services
                 return resp;
             }
             fee.Note = req.Note;
-            foreach(var sur in req.ServiceFeeUpdateReqList)
-            {
-                var serviceFee = await _context.ServiceFee.FirstOrDefaultAsync(s => s.Id == sur.Id);
-                serviceFee.OldCount = sur.OldCount;
-                serviceFee.NewCount = sur.NewCount;
-                var serviceFeeType = await _context.ServiceFeeType.FirstOrDefaultAsync(s => s.Id == serviceFee.TypeId);
-                serviceFee.TotalFee = (serviceFee.NewCount - serviceFee.OldCount) * serviceFeeType.PricePerUnit;
-            }
             try
             {
                 await _context.SaveChangesAsync();
@@ -283,9 +279,10 @@ namespace CNPM_BE.Services
             }
             resp.code = 1;
             resp.message = "Cập nhật thông tin bản thu phí thành công";
+            resp.entity = fee; ;
             return resp;
         }
-        public async Task<List<FeeResp>> GetFeeResp(AppUser user)
+        public async Task<List<FeeResp>> GetFeeList(AppUser user)
         {
             var feeList = await _context.Fee.Where(f => f.CreatorId == user.Id && f.Status != FeeStatus.Deleted).ToListAsync();
             var resp = new List<FeeResp>();
@@ -351,9 +348,9 @@ namespace CNPM_BE.Services
             }
             return resp;
         }
-        public async Task<ApiResp> AddFeePayment(AppUser user, FeePaymentCreateReq req)
+        public async Task<ApiResponseExpose<FeePayment>> AddFeePayment(AppUser user, FeePaymentCreateReq req)
         {
-            var resp = new ApiResp();
+            var resp = new ApiResponseExpose<FeePayment>();
             var fee = await _context.Fee.FirstOrDefaultAsync(f => f.Id == req.Id && f.CreatorId == user.Id);
             var feePayment = new FeePayment();
             feePayment.FeeId = req.Id;
@@ -375,6 +372,36 @@ namespace CNPM_BE.Services
             }
             resp.code = 1;
             resp.message = "Thu phí thành công";
+            resp.entity = feePayment;
+            return resp;
+        }
+        public async Task<ApiResponseExpose<ServiceFee>> UpdateServiceFeeInformation(AppUser user, ServiceFee req)
+        {
+            var resp = new ApiResponseExpose<ServiceFee>();
+            var serviceFee = await _context.ServiceFee.FirstOrDefaultAsync(f => f.Id == req.Id && f.CreatorId == user.Id && f.Status != ServiceFeeStatus.Deleted);
+            if (serviceFee == null)
+            {
+                resp.code = -1;
+                resp.message = "Đã có lỗi xảy ra trong quá trình tìm kiếm bản thu phí";
+                return resp;
+            }
+            var type = await _context.ServiceFeeType.FirstOrDefaultAsync(s => s.Id == req.TypeId);
+            serviceFee.OldCount = req.OldCount;
+            serviceFee.NewCount = req.NewCount;
+            serviceFee.TotalFee = type.PricePerUnit * (req.NewCount - req.OldCount);
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception)
+            {
+                resp.code = -1;
+                resp.message = "Đã có lỗi xảy ra trong quá trình cập nhật thông tin bản thu phí";
+                return resp;
+            }
+            resp.code = 1;
+            resp.message = "Cập nhật thông tin bản thu phí thành công";
+            resp.entity = serviceFee;
             return resp;
         }
     }
