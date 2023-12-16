@@ -14,9 +14,11 @@ namespace CNPM_BE.Services
             _context = context;
             _timeConverterService = timeConverterService;
         }
-        public async Task<ApiResp> AddResident(AppUser user, ResidentCreateReq req)
+
+        public async Task<ApiResponseExpose<Resident>> AddResident(AppUser user, Resident req)
         {
-            var resp = new ApiResp();
+            var resp = new ApiResponseExpose<Resident>();
+
             var newResident = new Resident();
             var ex = await _context.Resident.FirstOrDefaultAsync(r => r.ResidentCode == req.ResidentCode && r.CreatorId == user.Id && r.Status == ResidentStatus.Active);
             if (ex != null)
@@ -25,6 +27,7 @@ namespace CNPM_BE.Services
                 resp.message = "Đã tồn tại cư dân với mã " + req.ResidentCode;
                 return resp;
             }
+
             var apartment = await _context.Apartment.FirstOrDefaultAsync(a => a.Id == req.ApartmentId && a.Status != ApartmentStatus.Deleted && a.CreatorId == user.Id);
             if (apartment == null)
             {
@@ -32,6 +35,7 @@ namespace CNPM_BE.Services
                 resp.message = "Căn hộ không hợp lệ";
                 return resp;
             }
+
             newResident.CreatorId = user.Id;
             newResident.ResidentCode = req.ResidentCode;
             newResident.ApartmentId = req.ApartmentId;
@@ -41,6 +45,7 @@ namespace CNPM_BE.Services
             newResident.Gender = (ResidentGender)req.Gender;
             newResident.Status = ResidentStatus.Active;
             newResident.CreatedTime = await _timeConverterService.ConvertToUTCTime(DateTime.Now);
+
             try
             {
                 await _context.Resident.AddAsync(newResident);
@@ -84,14 +89,18 @@ namespace CNPM_BE.Services
                 resp.message = "Đã có lỗi xảy ra trong quá trình thêm cư dân mã " + req.ResidentCode;
                 return resp;
             }
+
             resp.code = 1;
             resp.message = "Thêm cư dân mã " + req.ResidentCode + " thành công";
+            resp.entity = newResident;
+
             return resp;
         }
-        public async Task<ApiResp> RemoveResident(AppUser user, ResidentDeleteReq req)
+
+        public async Task<ApiResponseExpose<Resident>> RemoveResident(AppUser user, int req)
         {
-            var resp = new ApiResp();
-            var resident = await _context.Resident.FirstOrDefaultAsync(r => r.CreatorId == user.Id && r.Id == req.Id && r.Status == ResidentStatus.Active);
+            var resp = new ApiResponseExpose<Resident>();
+            var resident = await _context.Resident.FirstOrDefaultAsync(r => r.CreatorId == user.Id && r.Id == req && r.Status == ResidentStatus.Active);
             if (resident == null)
             {
                 resp.code = -1;
@@ -130,13 +139,17 @@ namespace CNPM_BE.Services
                 resp.message = "Đã có lỗi xảy ra trong quá trình xóa cư dân";
                 return resp;
             }
+
             resp.code = 1;
             resp.message = "Xóa cư dân thành công";
+            resp.entity = resident;
+
             return resp;
         }
-        public async Task<ApiResp> UpdateInformation(AppUser user, ResidentUpdateReq req)
+
+        public async Task<ApiResponseExpose<Resident>> UpdateInformation(AppUser user, Resident req)
         {
-            var resp = new ApiResp();
+            var resp = new ApiResponseExpose<Resident>();
             var resident = await _context.Resident.FirstOrDefaultAsync(r => r.Id ==  req.Id && r.CreatorId == user.Id && r.Status == ResidentStatus.Active);
             if (resident == null)
             {
@@ -158,10 +171,14 @@ namespace CNPM_BE.Services
                 resp.message = "Đã có lỗi xảy ra trong quá trình cập nhật thông tin cư dân";
                 return resp;
             }
+
             resp.code = 1;
             resp.message = "Cập nhật thông tin cư dân thành công";
+            resp.entity = resident;
+
             return resp;
         }
+
         public async Task<List<ResidentResp>> GetResidentList(AppUser user)
         {
             var list = await _context.Resident.Where(r => r.CreatorId == user.Id && r.Status == ResidentStatus.Active).ToListAsync();
@@ -174,6 +191,7 @@ namespace CNPM_BE.Services
             }
             return resp;
         }
+
         public async Task<List<HouseholdResp>> GetHouseholdList(AppUser user)
         {
             var apartmentList = await _context.Apartment.Where(a => a.CreatorId == user.Id && a.Status == ApartmentStatus.Occupied).ToListAsync();

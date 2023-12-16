@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace CNPM_BE.Controllers
 {
     [ApiController]
-    [Route("api/[controller]/[action]/")]
+    [Route("api/[controller]/")]
     public class ContributionController : ControllerBase
     {
         private readonly UserService _userService;
@@ -17,7 +17,6 @@ namespace CNPM_BE.Controllers
             _userService = userService;
         }
         [HttpPost]
-        [ActionName("UpdateContributionInformation")]
         public async Task<ActionResult> UpdateContributionInformation(ContributionUpdateReq req)
         {
             var user = await _userService.GetUser();
@@ -29,8 +28,8 @@ namespace CNPM_BE.Controllers
             if (resp == null) return BadRequest();
             return Ok(resp);
         }
+
         [HttpGet]
-        [ActionName("GetContributionList")]
         public async Task<ActionResult> GetContributionList()
         {
             var user = await _userService.GetUser();

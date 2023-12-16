@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace CNPM_BE.Controllers
 {
     [ApiController]
-    [Route("api/[controller]/[action]/")]
+    [Route("api/[controller]/")]
     public class ManagementController : ControllerBase
     {
         private readonly UserService _userService;
@@ -17,9 +17,9 @@ namespace CNPM_BE.Controllers
             _userService = userService;
             _managementService = managementService;
         }
+
         [HttpPost]
-        [ActionName("AddResident")]
-        public async Task<ActionResult> AddResident(ResidentCreateReq req)
+        public async Task<ActionResult> AddResident(Resident req)
         {
             var user = await _userService.GetUser();
             if (user == null)
@@ -30,9 +30,9 @@ namespace CNPM_BE.Controllers
             if (resp == null) return BadRequest();
             return Ok(resp);
         }
-        [HttpPost]
-        [ActionName("RemoveResident")]
-        public async Task<ActionResult> RemoveResident(ResidentDeleteReq req)
+
+        [HttpDelete("{req}")]
+        public async Task<ActionResult> RemoveResident(int req)
         {
             var user = await _userService.GetUser();
             if (user == null)
@@ -43,9 +43,9 @@ namespace CNPM_BE.Controllers
             if (resp == null) return BadRequest();
             return Ok(resp);
         }
-        [HttpPost]
-        [ActionName("UpdateInformation")]
-        public async Task<ActionResult> UpdateInformation(ResidentUpdateReq req)
+
+        [HttpPut]
+        public async Task<ActionResult> UpdateInformation(Resident req)
         {
             var user = await _userService.GetUser();
             if (user == null)
@@ -56,8 +56,8 @@ namespace CNPM_BE.Controllers
             if (resp == null) return BadRequest();
             return Ok(resp);
         }
+
         [HttpGet]
-        [ActionName("GetResidentList")]
         public async Task<ActionResult> GetResidentList()
         {
             var user = await _userService.GetUser();
@@ -69,8 +69,8 @@ namespace CNPM_BE.Controllers
             if (resp == null) return BadRequest();
             return Ok(resp);
         }
-        [HttpGet]
-        [ActionName("GetHouseholdList")]
+
+        [HttpGet("GetHouseholdList")]
         public async Task<ActionResult> GetHouseholdList()
         {
             var user = await _userService.GetUser();
@@ -82,8 +82,8 @@ namespace CNPM_BE.Controllers
             if (resp == null) return BadRequest();
             return Ok(resp);
         }
-        [HttpGet]
-        [ActionName("GetOptionList")]
+
+        [HttpGet("GetOptionList")]
         public async Task<ActionResult> GetOptionList()
         {
             var user = await _userService.GetUser();

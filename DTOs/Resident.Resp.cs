@@ -6,20 +6,24 @@ namespace CNPM_BE.DTOs
     {
         public int Id { get; set; }
         public string ResidentCode { get; set; }
-        public string ApartmentCode { get; set; }
+
+        // id căn hộ
+        public int ApartmentId { get; set; }
+
         public string Position { get; set; }
         public string Name { get; set; }
-        public string BirthDate { get; set; }
+        public DateTime BirthDate { get; set; }
         public string Career { get; set; }
         public ResidentGender Gender { get; set; }
+
         public ResidentResp(Resident resident, Apartment apartment)
         {
             Id = resident.Id;
             ResidentCode = resident.ResidentCode;
-            ApartmentCode = apartment.ApartmentCode;
+            ApartmentId = apartment.Id;
             Position = apartment.Position;
             Name = resident.Name;
-            BirthDate = resident.BirthDate.ToString("dd/MM/yyyy");
+            BirthDate = resident.BirthDate;
             Career = resident.Career;
             Gender = resident.Gender;
         }
