@@ -16,7 +16,8 @@ namespace CNPM_BE.Controllers
             _contributionService = contributionService;
             _userService = userService;
         }
-        [HttpPost]
+
+        [HttpPut]
         public async Task<ActionResult> UpdateContributionInformation(ContributionUpdateReq req)
         {
             var user = await _userService.GetUser();

@@ -15,9 +15,11 @@ namespace CNPM_BE.Services
             _context = context;
             _timeConverterService = timeConverterService;
         }
-        public async Task<ApiResp> UpdateContributionInformation(AppUser user, ContributionUpdateReq req)
+
+        public async Task<ApiResponseExpose<Contribution>> UpdateContributionInformation(AppUser user, ContributionUpdateReq req)
         {
-            var resp = new ApiResp();
+            var resp = new ApiResponseExpose<Contribution>();
+
             var contribution = await _context.Contribution.FirstOrDefaultAsync(c => c.CreatorId == user.Id && c.Id == req.Id && c.Status == ContributionStatus.Active);
             if (contribution == null)
             {
@@ -25,6 +27,7 @@ namespace CNPM_BE.Services
                 resp.message = "Đã có lỗi xảy ra trong quá trình tìm kiếm đóng góp";
                 return resp;
             }
+
             contribution.ForThePoor = req.ForThePoor;
             contribution.ForVNSeasAndIslands = req.ForVNSeasAndIslands;
             contribution.DGFestival = req.DGFestival;
@@ -44,10 +47,14 @@ namespace CNPM_BE.Services
                 resp.message = "Đã có lỗi xảy ra trong quá trình cập nhật thông tin đóng góp";
                 return resp;
             }
+
             resp.code = 1;
             resp.message = "Cập nhật thông tin đóng góp thành công";
+            resp.entity = contribution;
+
             return resp;
         }
+
         public async Task<List<ContributionResp>> GetContributionList(AppUser user)
         {
             var list = await _context.Contribution.Where(c => c.CreatorId == user.Id && c.Status == ContributionStatus.Active).ToListAsync();
