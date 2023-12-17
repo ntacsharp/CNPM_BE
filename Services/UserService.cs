@@ -140,9 +140,10 @@ namespace CNPM_BE.Services
             var user = await _context.AppUser.FirstOrDefaultAsync();
             return user;
         }
-        public async Task<ApiResp> UpdateInformation(AppUser user, AccountUpdateReq req)
+        public async Task<ApiResponseExpose<AccountUpdateReq>> UpdateInformation(AppUser user, AccountUpdateReq req)
         {
-            var resp = new ApiResp();
+            var resp = new ApiResponseExpose<AccountUpdateReq>();
+
             user.Name = req.Name;
             user.PhoneNumber = req.PhoneNumber;
             user.BankName = req.BankName;
@@ -158,8 +159,11 @@ namespace CNPM_BE.Services
                 resp.message = "Đã có lỗi xảy ra trong quá trình cập nhật thông tin";
                 return resp;
             }
+
             resp.code = 1;
             resp.message = "Cập nhật thông tin thành công";
+            resp.entity = req;
+
             return resp;
         }
     }
