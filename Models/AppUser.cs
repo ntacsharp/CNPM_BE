@@ -12,5 +12,6 @@
         public string BankName { get; set; }
         public string BankAccountNumber { get; set; }
         public string FacebookLink { get; set; }
+        public string ZaloLink { get; set; }
     }
 }

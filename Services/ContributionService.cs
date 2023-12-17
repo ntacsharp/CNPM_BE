@@ -15,9 +15,9 @@ namespace CNPM_BE.Services
             _context = context;
             _timeConverterService = timeConverterService;
         }
-        public async Task<ApiResponseExpose<Contribution>> AddContribution(AppUser user, ContributionCreateReq req)
+        public async Task<ApiResponseExpose<ContributionResp>> AddContribution(AppUser user, ContributionCreateReq req)
         {
-            var resp = new ApiResponseExpose<Contribution>();
+            var resp = new ApiResponseExpose<ContributionResp>();
             var contribution = new Contribution();
             contribution.ResidentId = req.ResidentId;
             contribution.ForThePoor = req.ForThePoor;
@@ -44,12 +44,15 @@ namespace CNPM_BE.Services
             }
             resp.code = 1;
             resp.message = "Thêm bản đóng góp thành công";
-            resp.entity = contribution;
+            var resident = await _context.Resident.FirstOrDefaultAsync(r => r.Id == contribution.ResidentId);
+            var apartment = await _context.Apartment.FirstOrDefaultAsync(a => a.Id == resident.ApartmentId);
+            var cResp = new ContributionResp(contribution, resident, apartment);
+            resp.entity = cResp;
             return resp;
     }
-        public async Task<ApiResponseExpose<Contribution>> UpdateInformation(AppUser user, Contribution req)
+        public async Task<ApiResponseExpose<ContributionResp>> UpdateInformation(AppUser user, Contribution req)
         {
-            var resp = new ApiResponseExpose<Contribution>();
+            var resp = new ApiResponseExpose<ContributionResp>();
             var contribution = await _context.Contribution.FirstOrDefaultAsync(c => c.CreatorId == user.Id && c.Id == req.Id && c.Status == ContributionStatus.Active);
             if (contribution == null)
             {
@@ -78,12 +81,15 @@ namespace CNPM_BE.Services
             }
             resp.code = 1;
             resp.message = "Cập nhật thông tin đóng góp thành công";
-            resp.entity = contribution;
+            var resident = await _context.Resident.FirstOrDefaultAsync(r => r.Id == contribution.ResidentId);
+            var apartment = await _context.Apartment.FirstOrDefaultAsync(a => a.Id == resident.ApartmentId);
+            var cResp = new ContributionResp(contribution, resident, apartment);
+            resp.entity = cResp;
             return resp;
         }
-        public async Task<ApiResponseExpose<Contribution>> RemoveContribution(AppUser user, int req)
+        public async Task<ApiResponseExpose<ContributionResp>> RemoveContribution(AppUser user, int req)
         {
-            var resp = new ApiResponseExpose<Contribution>();
+            var resp = new ApiResponseExpose<ContributionResp>();
             var contribution = await _context.Contribution.FirstOrDefaultAsync(c => c.Id == req && c.CreatorId == user.Id && c.Status == ContributionStatus.Active);
             if(contribution == null)
             {
@@ -104,7 +110,10 @@ namespace CNPM_BE.Services
             }
             resp.code = 1;
             resp.message = "Xóa bản đóng góp thành công";
-            resp.entity = contribution;
+            var resident = await _context.Resident.FirstOrDefaultAsync(r => r.Id == contribution.ResidentId);
+            var apartment = await _context.Apartment.FirstOrDefaultAsync(a => a.Id == resident.ApartmentId);
+            var cResp = new ContributionResp(contribution, resident, apartment);
+            resp.entity = cResp;
             return resp;
         }
         public async Task<List<ContributionResp>> GetContributionList(AppUser user)

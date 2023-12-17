@@ -16,6 +16,7 @@ namespace CNPM_BE.DTOs
         public DateTime BirthDate { get; set; }
         public string Career { get; set; }
         public ResidentGender Gender { get; set; }
+        public bool IsOwner { get; set; }
 
         public ResidentResp(Resident resident, Apartment apartment)
         {
@@ -29,6 +30,7 @@ namespace CNPM_BE.DTOs
             Gender = resident.Gender;
             PhoneNumber = resident.PhoneNumber;
             CCCD = resident.CCCD;
+            IsOwner = resident.IsOwner;
         }
     }
 }

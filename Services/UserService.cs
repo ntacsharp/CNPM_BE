@@ -51,6 +51,7 @@ namespace CNPM_BE.Services
             newUser.BankName = "";
             newUser.BankAccountNumber = "";
             newUser.FacebookLink = "";
+            newUser.ZaloLink = "";
             byte[] salt = new byte[16];
             using (var rng = RandomNumberGenerator.Create())
             {
@@ -148,6 +149,7 @@ namespace CNPM_BE.Services
             user.BankName = req.BankName;
             user.BankAccountNumber = req.BankAccountNumber;
             user.FacebookLink = req.FacebookLink;
+            user.ZaloLink = req.ZaloLink;
             try
             {
                 await _context.SaveChangesAsync();

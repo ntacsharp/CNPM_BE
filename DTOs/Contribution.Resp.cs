@@ -18,7 +18,7 @@ namespace CNPM_BE.DTOs
         public int Gratitude { get; set; }
         public int StudyPromotion { get; set; }
         public int ForTheElderly { get; set; }
-        public string CreatedTime { get; set; }
+        public DateTime CreatedTime { get; set; }
         public ContributionResp(Contribution contribution, Resident owner, Apartment apartment)
         {
             Id = contribution.Id;
@@ -35,7 +35,7 @@ namespace CNPM_BE.DTOs
             ResidentName = owner.Name;
             Position = apartment.Position;
             ApartmentCode = apartment.ApartmentCode;
-            CreatedTime = contribution.CreatedTime.ToString();
+            CreatedTime = contribution.CreatedTime;
         }
     }
 }

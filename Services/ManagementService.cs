@@ -47,6 +47,7 @@ namespace CNPM_BE.Services
             newResident.CreatedTime = await _timeConverterService.ConvertToUTCTime(DateTime.Now);
             newResident.PhoneNumber = req.PhoneNumber;
             newResident.CCCD = req.CCCD;
+            newResident.IsOwner = false;
             try
             {
                 await _context.Resident.AddAsync(newResident);
@@ -63,6 +64,7 @@ namespace CNPM_BE.Services
             {
                 apartment.Status = ApartmentStatus.Occupied;
                 apartment.OwnerId = newResident.Id;
+                newResident.IsOwner = true;
             }
             try
             {
@@ -103,6 +105,7 @@ namespace CNPM_BE.Services
             {
                 var newOwner = await _context.Resident.FirstOrDefaultAsync(r => r.ApartmentId == apartment.Id && r.CreatorId == user.Id && r.Status == ResidentStatus.Active);
                 apartment.OwnerId = newOwner.Id;
+                newOwner.IsOwner = true;
             }
             resident.Status = ResidentStatus.Deleted;
             resident.DeletedTime = await _timeConverterService.ConvertToUTCTime(DateTime.Now);
@@ -187,17 +190,27 @@ namespace CNPM_BE.Services
                 hr.Id = a.Id;
                 hr.Position = a.Position;
                 hr.ApartmentCode = a.ApartmentCode;
-                var owner = await _context.Resident.FirstOrDefaultAsync(r => r.Id == a.OwnerId);
-                hr.OwnerCode = owner.ResidentCode;
-                hr.OwnerName = owner.Name;
-                var list = new List<ResidentResp>();
+                //var owner = await _context.Resident.FirstOrDefaultAsync(r => r.Id == a.OwnerId);
+                //hr.OwnerCode = owner.ResidentCode;
+                //hr.OwnerName = owner.Name;
+                var rlist = new List<ResidentResp>();
                 var residentList = await _context.Resident.Where(r => r.ApartmentId == a.Id && r.Status == ResidentStatus.Active).ToListAsync();
                 foreach(var res in residentList)
                 {
                     var rr = new ResidentResp(res, a);
-                    list.Add(rr);
+                    rlist.Add(rr);
                 }
-                hr.ResidentList = list;
+                hr.ResidentList = rlist;
+                var vlist = new List<VehicleResp>();
+                var vehicleList = await _context.Vehicle.Where(v => v.ApartmentId == a.Id && v.Status == VehicleStatus.Active).ToListAsync();
+                foreach (var veh in vehicleList)
+                {
+                    var owner = await _context.Resident.FirstOrDefaultAsync(r => r.Id == veh.OwnerId);
+                    var type = await _context.VehicleType.FirstOrDefaultAsync(v => v.Id == veh.VehicleTypeId);
+                    var vr = new VehicleResp(veh, owner, type);
+                    vlist.Add(vr);
+                }
+                hr.VehicleList = vlist;
                 resp.Add(hr);
             }
             return resp;

@@ -15,6 +15,7 @@
         public ResidentStatus Status { get; set; }
         public DateTime CreatedTime { get; set; }
         public DateTime? DeletedTime { get; set; }
+        public bool IsOwner { get; set; }
     }
     public enum ResidentGender
     {
@@ -25,6 +26,7 @@
     public enum ResidentStatus
     {
         Active,
+        Inactive,
         Deleted
     }
 }
