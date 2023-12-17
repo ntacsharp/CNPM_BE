@@ -1,8 +1,8 @@
 ﻿namespace CNPM_BE.DTOs
 {
-    public class ContributionUpdateReq
+    public class ContributionCreateReq
     {
-        public int Id { get; set; }
+        public int ResidentId { get; set; }
         public int ForThePoor { get; set; }
         public int ForVNSeasAndIslands { get; set; }
         public int DGFestival { get; set; }

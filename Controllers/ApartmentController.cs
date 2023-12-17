@@ -10,12 +10,10 @@ namespace CNPM_BE.Controllers
     [Route("api/[controller]/")]
     public class ApartmentController : ControllerBase
     {
-        private readonly CNPMDbContext _context;
         private readonly UserService _userService;
         private readonly ApartmentService _apartmentService;
-        public ApartmentController(CNPMDbContext context, UserService userService, ApartmentService apartmentService)
+        public ApartmentController(UserService userService, ApartmentService apartmentService)
         {
-            _context = context;
             _userService = userService;
             _apartmentService = apartmentService;
         }

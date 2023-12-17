@@ -6,8 +6,9 @@ namespace CNPM_BE.Models
     {
         public int Id { get; set; }
         public int CreatorId { get; set; }
-        public int ApartmentId { get; set; }
+        public int ResidentId { get; set; }
         public ContributionStatus Status {  get; set; } 
+        public DateTime CreatedTime { get; set; }
         public int ForThePoor {  get; set; }
         public int ForVNSeasAndIslands { get; set; }
         public int DGFestival { get; set; }

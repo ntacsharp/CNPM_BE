@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CNPM_BE.Migrations
 {
     [DbContext(typeof(CNPMDbContext))]
-    [Migration("20231215154229_StatusMigration")]
-    partial class StatusMigration
+    [Migration("20231216170113_ContributionMigration")]
+    partial class ContributionMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -126,11 +126,6 @@ namespace CNPM_BE.Migrations
                         .HasColumnType("text")
                         .HasColumnName("phone_number");
 
-                    b.Property<string>("UserCode")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("user_code");
-
                     b.Property<string>("Username")
                         .IsRequired()
                         .HasColumnType("text")
@@ -151,13 +146,13 @@ namespace CNPM_BE.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("ApartmentId")
-                        .HasColumnType("integer")
-                        .HasColumnName("apartment_id");
-
                     b.Property<int>("Charity")
                         .HasColumnType("integer")
                         .HasColumnName("charity");
+
+                    b.Property<DateTime>("CreatedTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_time");
 
                     b.Property<int>("CreatorId")
                         .HasColumnType("integer")
@@ -187,6 +182,10 @@ namespace CNPM_BE.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("gratitude");
 
+                    b.Property<int>("ResidentId")
+                        .HasColumnType("integer")
+                        .HasColumnName("resident_id");
+
                     b.Property<int>("ResidentialGroup")
                         .HasColumnType("integer")
                         .HasColumnName("residential_group");
@@ -202,11 +201,11 @@ namespace CNPM_BE.Migrations
                     b.HasKey("Id")
                         .HasName("pk_contribution");
 
-                    b.HasIndex("ApartmentId")
-                        .HasDatabaseName("ix_contribution_apartment_id");
-
                     b.HasIndex("CreatorId")
                         .HasDatabaseName("ix_contribution_creator_id");
+
+                    b.HasIndex("ResidentId")
+                        .HasDatabaseName("ix_contribution_resident_id");
 
                     b.ToTable("contribution", (string)null);
                 });
@@ -586,19 +585,19 @@ namespace CNPM_BE.Migrations
 
             modelBuilder.Entity("CNPM_BE.Models.Contribution", b =>
                 {
-                    b.HasOne("CNPM_BE.Models.Apartment", null)
-                        .WithMany()
-                        .HasForeignKey("ApartmentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_contribution_apartment_apartment_id");
-
                     b.HasOne("CNPM_BE.Models.AppUser", null)
                         .WithMany()
                         .HasForeignKey("CreatorId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_contribution_app_user_app_user_id");
+
+                    b.HasOne("CNPM_BE.Models.Resident", null)
+                        .WithMany()
+                        .HasForeignKey("ResidentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_contribution_resident_resident_id");
                 });
 
             modelBuilder.Entity("CNPM_BE.Models.Fee", b =>

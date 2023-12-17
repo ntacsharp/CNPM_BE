@@ -15,7 +15,7 @@ namespace CNPM_BE.Services
             _timeConverterService = timeConverterService;
         }
 
-        public async Task<ApiResponseExpose<Resident>> AddResident(AppUser user, Resident req)
+        public async Task<ApiResponseExpose<Resident>> AddResident(AppUser user, ResidentCreateReq req)
         {
             var resp = new ApiResponseExpose<Resident>();
 
@@ -45,7 +45,8 @@ namespace CNPM_BE.Services
             newResident.Gender = (ResidentGender)req.Gender;
             newResident.Status = ResidentStatus.Active;
             newResident.CreatedTime = await _timeConverterService.ConvertToUTCTime(DateTime.Now);
-
+            newResident.PhoneNumber = req.PhoneNumber;
+            newResident.CCCD = req.CCCD;
             try
             {
                 await _context.Resident.AddAsync(newResident);
@@ -62,22 +63,6 @@ namespace CNPM_BE.Services
             {
                 apartment.Status = ApartmentStatus.Occupied;
                 apartment.OwnerId = newResident.Id;
-                var con = new Contribution();
-                con.ApartmentId = apartment.Id;
-                con.CreatorId = user.Id;
-                con.Status = ContributionStatus.Active;
-                con.ForThePoor = con.ForVNSeasAndIslands = con.DGFestival = con.ResidentialGroup = con.ForChildren = con.Charity = con.Gratitude = con.StudyPromotion = con.ForTheElderly = 0;
-                try
-                {
-                    await _context.AddAsync(con);
-                    await _context.SaveChangesAsync();
-                }
-                catch (Exception)
-                {
-                    resp.code = -1;
-                    resp.message = "Đã có lỗi xảy ra trong quá trình thêm cư dân mã " + req.ResidentCode;
-                    return resp;
-                }
             }
             try
             {
@@ -113,8 +98,6 @@ namespace CNPM_BE.Services
             {
                 apartment.Status = ApartmentStatus.Unoccupied;
                 apartment.OwnerId = null;
-                var contribution = await _context.Contribution.FirstOrDefaultAsync(c => c.ApartmentId == apartment.Id && c.Status == ContributionStatus.Active);
-                contribution.Status = ContributionStatus.Deleted;
             }
             else
             {
@@ -161,6 +144,8 @@ namespace CNPM_BE.Services
             resident.Career = req.Career;
             resident.Gender = (ResidentGender)req.Gender;
             resident.BirthDate = await _timeConverterService.ConvertToUTCTime(req.BirthDate);
+            resident.PhoneNumber = req.PhoneNumber;
+            resident.CCCD = req.CCCD;
             try
             {
                 await _context.SaveChangesAsync();
@@ -214,18 +199,6 @@ namespace CNPM_BE.Services
                 }
                 hr.ResidentList = list;
                 resp.Add(hr);
-            }
-            return resp;
-        }
-        public async Task<List<HouseholdOption>> GetOptionList(AppUser user)
-        {
-            var apartmentList = await _context.Apartment.Where(a => a.CreatorId == user.Id && a.Status == ApartmentStatus.Occupied).ToListAsync();
-            var resp = new List<HouseholdOption>();
-            foreach(var apartment in apartmentList)
-            {
-                var owner = await _context.Resident.FirstOrDefaultAsync(r => r.ApartmentId == apartment.Id && r.Status == ResidentStatus.Active);
-                var ho = new HouseholdOption(apartment, owner);
-                resp.Add(ho);
             }
             return resp;
         }

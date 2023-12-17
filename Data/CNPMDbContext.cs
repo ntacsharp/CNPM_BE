@@ -86,9 +86,9 @@ namespace CNPM_BE.Data
                 .HasForeignKey(x => x.ApartmentId)
                 .IsRequired();
             modelBuilder.Entity<Contribution>()
-                .HasOne<Apartment>()
+                .HasOne<Resident>()
                 .WithMany()
-                .HasForeignKey(x => x.ApartmentId)
+                .HasForeignKey(x => x.ResidentId)
                 .IsRequired();
             modelBuilder.Entity<Contribution>()
                 .HasOne<AppUser>()
