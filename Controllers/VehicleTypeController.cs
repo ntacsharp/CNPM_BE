@@ -28,6 +28,7 @@ namespace CNPM_BE.Controllers
             if (resp == null) return BadRequest();
             return Ok(resp);
         }
+
         [HttpGet]
         public async Task<ActionResult> GetVehicleTypeList()
         {

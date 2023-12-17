@@ -17,6 +17,7 @@ namespace CNPM_BE.Controllers
             _contributionService = contributionService;
             _userService = userService;
         }
+
         [HttpPost]
         public async Task<ActionResult> AddContribution(ContributionCreateReq req)
         {
@@ -29,6 +30,7 @@ namespace CNPM_BE.Controllers
             if (resp == null) return BadRequest();
             return Ok(resp);
         }
+
         [HttpGet]
         public async Task<ActionResult> GetContributionList()
         {
@@ -41,6 +43,7 @@ namespace CNPM_BE.Controllers
             if (resp == null) return BadRequest();
             return Ok(resp);
         }
+
         [HttpPut]
         public async Task<ActionResult> UpdateInformation(Contribution req)
         {

@@ -5,6 +5,9 @@ namespace CNPM_BE.DTOs
     public class ContributionResp
     {
         public int Id { get; set; }
+
+        public int ApartmentId { get; set; }
+
         public string ApartmentCode { get; set; }
         public string ResidentName { get; set; }
         public string ResidentCode { get; set; }
@@ -35,7 +38,8 @@ namespace CNPM_BE.DTOs
             ResidentName = owner.Name;
             Position = apartment.Position;
             ApartmentCode = apartment.ApartmentCode;
-            CreatedTime = contribution.CreatedTime;
+            CreatedTime = contribution.CreatedTime.ToString();
+            ApartmentId = apartment.Id;
         }
     }
 }
