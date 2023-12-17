@@ -5,7 +5,11 @@ namespace CNPM_BE.DTOs
     public class ContributionResp
     {
         public int Id { get; set; }
+
+        public int ApartmentId { get; set; }
+
         public string ApartmentCode { get; set; }
+
         public string OwnerName { get; set; }
         public string OwnerCode { get; set; }
         public string Position { get; set; }
@@ -34,6 +38,7 @@ namespace CNPM_BE.DTOs
             OwnerName = owner.Name;
             Position = apartment.Position;
             ApartmentCode = apartment.ApartmentCode;
+            ApartmentId = apartment.Id;
         }
     }
 }
