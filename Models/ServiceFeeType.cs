@@ -9,6 +9,7 @@
         public int PricePerUnit { get; set; }
         public MeasuringUnit MeasuringUnit { get; set; }
         public ServiceFeeTypeStatus Status { get; set; }
+        public bool IsSystem {  get; set; }
     }
     public enum MeasuringUnit
     {

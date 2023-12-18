@@ -3,8 +3,8 @@
     public class Vehicle
     {
         public int Id { get; set; }
-        public string VehicleCode { get; set; }
-        public string Name { get; set; }
+        //public string VehicleCode { get; set; }
+        //public string Name { get; set; }
         public string Plate { get; set; }
         public int OwnerId { get; set; }
         public int CreatorId { get; set; }

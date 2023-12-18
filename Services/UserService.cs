@@ -68,7 +68,42 @@ namespace CNPM_BE.Services
             {
                 return null;
             }
-
+            newUser = await _context.AppUser.OrderBy(u => u.Id).LastOrDefaultAsync();
+            var t1 = new ServiceFeeType();
+            t1.CreatorId = newUser.Id;
+            t1.ServiceFeeTypeCode = "ST001";
+            t1.Name = "Phí dịch vụ chung cư";
+            t1.PricePerUnit = 0;
+            t1.MeasuringUnit = MeasuringUnit.M2;
+            t1.Status = ServiceFeeTypeStatus.Active;
+            t1.IsSystem = true;
+            var t2 = new ServiceFeeType();
+            t2.CreatorId = newUser.Id;
+            t2.ServiceFeeTypeCode = "ST002";
+            t2.Name = "Tiền điện";
+            t2.PricePerUnit = 0;
+            t2.MeasuringUnit = MeasuringUnit.Number;
+            t2.Status = ServiceFeeTypeStatus.Active;
+            t2.IsSystem = true;
+            var t3 = new ServiceFeeType();
+            t3.CreatorId = newUser.Id;
+            t3.ServiceFeeTypeCode = "ST003";
+            t3.Name = "Tiền nước";
+            t3.PricePerUnit = 0;
+            t3.MeasuringUnit = MeasuringUnit.M3;
+            t3.Status = ServiceFeeTypeStatus.Active;
+            t3.IsSystem = true;
+            try
+            {
+                await _context.ServiceFeeType.AddAsync(t1);
+                await _context.ServiceFeeType.AddAsync(t2);
+                await _context.ServiceFeeType.AddAsync(t3);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception)
+            {
+                return null;
+            }
             resp.code = 1;
             resp.message = "Đăng ký thành công";
             resp.entity = newUser;

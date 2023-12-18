@@ -19,13 +19,13 @@ namespace CNPM_BE.Services
             var resp = new ApiResp();
             var newVehicle = new Vehicle();
             var owner = await _context.Resident.FirstOrDefaultAsync(r => r.Id == req.OwnerId && r.CreatorId == user.Id && r.Status == ResidentStatus.Active);
-            var ex = await _context.Vehicle.FirstOrDefaultAsync(v => v.CreatorId == user.Id && v.VehicleCode == req.VehicleCode && v.Status == VehicleStatus.Active);
-            if (ex != null)
-            {
-                resp.code = -1;
-                resp.message = "Đã tồn tại phương tiện với mã " + req.VehicleCode;
-                return resp;
-            }
+            //var ex = await _context.Vehicle.FirstOrDefaultAsync(v => v.CreatorId == user.Id && v.VehicleCode == req.VehicleCode && v.Status == VehicleStatus.Active);
+            //if (ex != null)
+            //{
+            //    resp.code = -1;
+            //    resp.message = "Đã tồn tại phương tiện với mã " + req.VehicleCode;
+            //    return resp;
+            //}
             var resident = await _context.Resident.FirstOrDefaultAsync(r => r.Id == req.OwnerId && r.Status != ResidentStatus.Deleted && r.CreatorId == user.Id);
             if (resident == null)
             {
@@ -38,9 +38,9 @@ namespace CNPM_BE.Services
             newVehicle.Status = VehicleStatus.Active;
             newVehicle.Plate = req.Plate;
             newVehicle.CreatedTime = await _timeConverterService.ConvertToUTCTime(DateTime.Now);
-            newVehicle.Name = req.Name;
+            //newVehicle.Name = req.Name;
             newVehicle.OwnerId = req.OwnerId;
-            newVehicle.VehicleCode = req.VehicleCode;
+            //newVehicle.VehicleCode = req.VehicleCode;
             newVehicle.VehicleTypeId = req.VehicleTypeId;
             newVehicle.ApartmentId = owner.ApartmentId;
             try
@@ -94,7 +94,7 @@ namespace CNPM_BE.Services
                 resp.message = "Đã có lỗi xảy ra trong quá trình tìm kiếm phương tiện";
                 return resp;
             }
-            vehicle.Name = req.Name;
+            //vehicle.Name = req.Name;
             vehicle.Plate = req.Plate;
             vehicle.VehicleTypeId = req.VehicleTypeId;
             try

@@ -38,7 +38,7 @@ namespace CNPM_BE.DTOs
             ResidentName = owner.Name;
             Position = apartment.Position;
             ApartmentCode = apartment.ApartmentCode;
-            CreatedTime = contribution.CreatedTime.ToString();
+            CreatedTime = contribution.CreatedTime;
             ApartmentId = apartment.Id;
         }
     }

@@ -33,7 +33,8 @@ namespace CNPM_BE.Services
             newServiceFeeType.PricePerUnit = req.PricePerUnit;
             newServiceFeeType.MeasuringUnit = (MeasuringUnit)req.MeasuringUnit;
             newServiceFeeType.CreatorId = user.Id;
-            newServiceFeeType.Status = ServiceFeeTypeStatus.Active; 
+            newServiceFeeType.Status = ServiceFeeTypeStatus.Active;
+            newServiceFeeType.IsSystem = false;
             try
             {
                 await _context.ServiceFeeType.AddAsync(newServiceFeeType);
@@ -58,6 +59,12 @@ namespace CNPM_BE.Services
             {
                 resp.code = -1;
                 resp.message = "Đã có lỗi xảy ra trong quá trình tìm kiếm phí dịch vụ";
+                return resp;
+            }
+            if (serviceFeeType.IsSystem)
+            {
+                resp.code = -1;
+                resp.message = "Không thể xóa loại phí mặc định";
                 return resp;
             }
             serviceFeeType.Status = ServiceFeeTypeStatus.Deleted;
