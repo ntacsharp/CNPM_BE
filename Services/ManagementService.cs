@@ -149,6 +149,8 @@ namespace CNPM_BE.Services
             resident.BirthDate = await _timeConverterService.ConvertToUTCTime(req.BirthDate);
             resident.PhoneNumber = req.PhoneNumber;
             resident.CCCD = req.CCCD;
+            resident.IsOwner = req.IsOwner;
+
             try
             {
                 await _context.SaveChangesAsync();
