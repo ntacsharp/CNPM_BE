@@ -132,9 +132,9 @@ namespace CNPM_BE.Services
             }
             return resp;
         }
-        public async Task<ApiResponseExpose<VehicleType>> AddVehicleType(AppUser user, VehicleTypeCreateReq req)
+        public async Task<ApiResponseExpose<VehicleTypeResp>> AddVehicleType(AppUser user, VehicleTypeCreateReq req)
         {
-            var resp = new ApiResponseExpose<VehicleType>();
+            var resp = new ApiResponseExpose<VehicleTypeResp>();
             var newVehicleType = new VehicleType();
             var ex = await _context.VehicleType.FirstOrDefaultAsync(v => v.VehicleTypeCode == req.VehicleTypeCode && v.CreatorId == user.Id && v.Status == VehicleTypeStatus.Active);
             if (ex != null)
@@ -161,12 +161,12 @@ namespace CNPM_BE.Services
             }
             resp.code = 1;
             resp.message = "Thêm loại phương tiện mã " + req.VehicleTypeCode + " thành công";
-            resp.entity = newVehicleType;
+            resp.entity = new VehicleTypeResp(newVehicleType);
             return resp;
         }
-        public async Task<ApiResponseExpose<VehicleType>> RemoveVehicleType(AppUser user, int req)
+        public async Task<ApiResponseExpose<VehicleTypeResp>> RemoveVehicleType(AppUser user, int req)
         {
-            var resp = new ApiResponseExpose<VehicleType>();
+            var resp = new ApiResponseExpose<VehicleTypeResp>();
             var vehicleType = await _context.VehicleType.FirstOrDefaultAsync(v => v.CreatorId == user.Id && v.Id == req && v.Status == VehicleTypeStatus.Active);
             if (vehicleType == null)
             {
@@ -193,12 +193,12 @@ namespace CNPM_BE.Services
             }
             resp.code = 1;
             resp.message = "Xóa loại phương tiện thành công";
-            resp.entity = vehicleType;
+            resp.entity = new VehicleTypeResp(vehicleType);
             return resp;
         }
-        public async Task<ApiResponseExpose<VehicleType>> UpdateVehicleTypeInformation(AppUser user, VehicleType req)
+        public async Task<ApiResponseExpose<VehicleTypeResp>> UpdateVehicleTypeInformation(AppUser user, VehicleType req)
         {
-            var resp = new ApiResponseExpose<VehicleType>();
+            var resp = new ApiResponseExpose<VehicleTypeResp>();
             var vehicleType = await _context.VehicleType.FirstOrDefaultAsync(v => v.Id == req.Id && v.CreatorId == user.Id && v.Status == VehicleTypeStatus.Active);
             if (vehicleType == null)
             {
@@ -220,7 +220,7 @@ namespace CNPM_BE.Services
             }
             resp.code = 1;
             resp.message = "Cập nhật thông tin loại phương tiện thành công";
-            resp.entity = vehicleType;
+            resp.entity = new VehicleTypeResp(vehicleType);
             return resp;
         }
         public async Task<List<VehicleTypeResp>> GetVehicleTypeList(AppUser user)

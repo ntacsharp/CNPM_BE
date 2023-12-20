@@ -17,9 +17,9 @@ namespace CNPM_BE.Services
             _timeConverterService = timeConverterService;
             _vehicleService = vehicleService;
         }
-        public async Task<ApiResponseExpose<ServiceFeeType>> AddServiceFeeType(AppUser user, ServiceFeeTypeCreateReq req)
+        public async Task<ApiResponseExpose<ServiceFeeTypeResp>> AddServiceFeeType(AppUser user, ServiceFeeTypeCreateReq req)
         {
-            var resp = new ApiResponseExpose<ServiceFeeType>();
+            var resp = new ApiResponseExpose<ServiceFeeTypeResp>();
             var newServiceFeeType = new ServiceFeeType();
             var ex = await _context.ServiceFeeType.FirstOrDefaultAsync(s => s.ServiceFeeTypeCode == req.ServiceFeeTypeCode && s.CreatorId == user.Id && s.Status == ServiceFeeTypeStatus.Active);
             if (ex != null)
@@ -48,12 +48,12 @@ namespace CNPM_BE.Services
             }
             resp.code = 1;
             resp.message = "Thêm phí dịch vụ mã " + req.ServiceFeeTypeCode + " thành công";
-            resp.entity = newServiceFeeType;
+            resp.entity = new ServiceFeeTypeResp(newServiceFeeType);
             return resp;
         }
-        public async Task<ApiResponseExpose<ServiceFeeType>> RemoveServiceFeeType(AppUser user, int req)
+        public async Task<ApiResponseExpose<ServiceFeeTypeResp>> RemoveServiceFeeType(AppUser user, int req)
         {
-            var resp = new ApiResponseExpose<ServiceFeeType>();
+            var resp = new ApiResponseExpose<ServiceFeeTypeResp>();
             var serviceFeeType = await _context.ServiceFeeType.FirstOrDefaultAsync(s => s.CreatorId == user.Id && s.Id == req && s.Status == ServiceFeeTypeStatus.Active);
             if (serviceFeeType == null)
             {
@@ -80,12 +80,12 @@ namespace CNPM_BE.Services
             }
             resp.code = 1;
             resp.message = "Xóa phí dịch vụ thành công";
-            resp.entity = serviceFeeType;
+            resp.entity = new ServiceFeeTypeResp(serviceFeeType);
             return resp;
         }
-        public async Task<ApiResponseExpose<ServiceFeeType>> UpdateServiceFeeTypeInformation(AppUser user, ServiceFeeType req)
+        public async Task<ApiResponseExpose<ServiceFeeTypeResp>> UpdateServiceFeeTypeInformation(AppUser user, ServiceFeeType req)
         {
-            var resp = new ApiResponseExpose<ServiceFeeType>();
+            var resp = new ApiResponseExpose<ServiceFeeTypeResp>();
             var serviceFeeType = await _context.ServiceFeeType.FirstOrDefaultAsync(v => v.Id == req.Id && v.CreatorId == user.Id && v.Status == ServiceFeeTypeStatus.Active);
             if (serviceFeeType == null)
             {
@@ -107,7 +107,7 @@ namespace CNPM_BE.Services
             }
             resp.code = 1;
             resp.message = "Cập nhật thông tin phí dịch vụ thành công";
-            resp.entity = serviceFeeType;
+            resp.entity = new ServiceFeeTypeResp(serviceFeeType);
             return resp;
         }
         public async Task<List<ServiceFeeTypeResp>> GetServiceFeeTypeList(AppUser user)
@@ -115,9 +115,9 @@ namespace CNPM_BE.Services
             var resp = await _context.ServiceFeeType.Where(s => s.CreatorId == user.Id && s.Status == ServiceFeeTypeStatus.Active).Select(s => new ServiceFeeTypeResp(s)).ToListAsync();
             return resp;
         }
-        public async Task<ApiResponseExpose<Fee>> AddFee(AppUser user)
+        public async Task<ApiResponseExpose<FeeResp>> AddFee(AppUser user)
         {
-            var resp = new ApiResponseExpose<Fee>();
+            var resp = new ApiResponseExpose<FeeResp>();
             var current = await _timeConverterService.ConvertToUTCTime(DateTime.Now);
             var daysInMonth = DateTime.DaysInMonth(current.Year, current.Month);
             DateTime lastDayOfMonth = new DateTime(current.Year, current.Month, daysInMonth);
@@ -230,6 +230,8 @@ namespace CNPM_BE.Services
             }
             resp.code = 1;
             resp.message = "Thêm bản thu phí thành công";
+            var e = new FeeResp();
+            resp.entity = e;
             return resp;
         }
         public async Task<ApiResponseExpose<Fee>> RemoveFee(AppUser user, int req)
@@ -295,54 +297,7 @@ namespace CNPM_BE.Services
             var resp = new List<FeeResp>();
             foreach (var fee in feeList)
             {
-                var feeResp = new FeeResp();
-                var apartment = await _context.Apartment.FirstOrDefaultAsync(a => a.Id == fee.ApartmentId);
-                var owner = await _context.Resident.FirstOrDefaultAsync(r => r.Id == apartment.OwnerId);
-                var serviceFeeList = await _context.ServiceFee.Where(f => f.FeeId == fee.Id && f.Status == ServiceFeeStatus.Active).ToListAsync();
-                var paymentList = await _context.FeePayment.Where(f => f.FeeId == fee.Id && f.Status == FeePaymentStatus.Active).ToListAsync();
-                var list = new List<ServiceFeeResp>();
-                var flist = new List<FeePaymentResp>();
-                feeResp.Id = fee.Id;
-                feeResp.ApartmentCode = apartment.ApartmentCode;
-                feeResp.Area = apartment.Area;
-                feeResp.OwnerName = owner.Name;
-                feeResp.OwnerCode = owner.ResidentCode;
-                feeResp.Note = fee.Note;
-                feeResp.CreatedTime = fee.CreatedTime.ToString();
-                feeResp.ExpiredDate = fee.ExpiredDate.ToString("dd/MM/yyyy");
-                feeResp.ReceivedAmount = fee.ReceivedAmount;
-                feeResp.ManagementFee = fee.ManagementFee;
-                feeResp.ParkingFee = fee.ParkingFee;
-                feeResp.ServiceFee = 0;
-                foreach(var serviceFee in serviceFeeList)
-                {
-                    var serviceFeeResp = new ServiceFeeResp();
-                    var type = await _context.ServiceFeeType.FirstOrDefaultAsync(s => s.Id == serviceFee.TypeId);
-                    serviceFeeResp.Id = serviceFee.Id;
-                    serviceFeeResp.Name = type.Name;
-                    serviceFeeResp.PricePerUnit = type.PricePerUnit;
-                    serviceFeeResp.MeasuringUnit = type.MeasuringUnit.ToString();
-                    serviceFeeResp.OldCount = serviceFee.OldCount;
-                    serviceFeeResp.NewCount = serviceFee.NewCount;
-                    serviceFeeResp.TotalFee = serviceFee.TotalFee;
-                    feeResp.ServiceFee += serviceFee.TotalFee;
-                    list.Add(serviceFeeResp);
-                }
-                feeResp.ServiceFeeList = list;
-                foreach(var payment in paymentList)
-                {
-                    var fpr = new FeePaymentResp();
-                    fpr.Id = payment.Id;
-                    fpr.Amount = payment.Amount;
-                    flist.Add(fpr);
-                }
-                feeResp.FeePaymentList = flist;
-                feeResp.TotalFee = feeResp.ManagementFee + feeResp.ParkingFee + feeResp.ServiceFee;
-                if (feeResp.ReceivedAmount >= feeResp.TotalFee) fee.Status = FeeStatus.Paid;
-                else if(fee.ExpiredDate <= await _timeConverterService.ConvertToUTCTime(DateTime.Now)) fee.Status = FeeStatus.Expired;
-                if (fee.Status == FeeStatus.OnGoing) feeResp.Status = "Còn hạn";
-                else if (fee.Status == FeeStatus.Expired) feeResp.Status = "Quá hạn";
-                else if (fee.Status == FeeStatus.Paid) feeResp.Status = "Hoàn thiện";
+                var feeResp = await CreateFeeResp(fee);
                 resp.Add(feeResp);
             }
             try
@@ -354,6 +309,58 @@ namespace CNPM_BE.Services
                 return null;
             }
             return resp;
+        }
+        private async Task<FeeResp> CreateFeeResp(Fee fee)
+        {
+            var feeResp = new FeeResp();
+            var apartment = await _context.Apartment.FirstOrDefaultAsync(a => a.Id == fee.ApartmentId);
+            var owner = await _context.Resident.FirstOrDefaultAsync(r => r.Id == apartment.OwnerId);
+            var serviceFeeList = await _context.ServiceFee.Where(f => f.FeeId == fee.Id && f.Status == ServiceFeeStatus.Active).ToListAsync();
+            var paymentList = await _context.FeePayment.Where(f => f.FeeId == fee.Id && f.Status == FeePaymentStatus.Active).ToListAsync();
+            var list = new List<ServiceFeeResp>();
+            var flist = new List<FeePaymentResp>();
+            feeResp.Id = fee.Id;
+            feeResp.ApartmentCode = apartment.ApartmentCode;
+            feeResp.Area = apartment.Area;
+            feeResp.OwnerName = owner.Name;
+            feeResp.OwnerCode = owner.ResidentCode;
+            feeResp.Note = fee.Note;
+            feeResp.CreatedTime = fee.CreatedTime.ToString();
+            feeResp.ExpiredDate = fee.ExpiredDate.ToString("dd/MM/yyyy");
+            feeResp.ReceivedAmount = fee.ReceivedAmount;
+            feeResp.ManagementFee = fee.ManagementFee;
+            feeResp.ParkingFee = fee.ParkingFee;
+            feeResp.ServiceFee = 0;
+            foreach (var serviceFee in serviceFeeList)
+            {
+                var serviceFeeResp = new ServiceFeeResp();
+                var type = await _context.ServiceFeeType.FirstOrDefaultAsync(s => s.Id == serviceFee.TypeId);
+                serviceFeeResp.Id = serviceFee.Id;
+                serviceFeeResp.Name = type.Name;
+                serviceFeeResp.PricePerUnit = type.PricePerUnit;
+                serviceFeeResp.MeasuringUnit = type.MeasuringUnit.ToString();
+                serviceFeeResp.OldCount = serviceFee.OldCount;
+                serviceFeeResp.NewCount = serviceFee.NewCount;
+                serviceFeeResp.TotalFee = serviceFee.TotalFee;
+                feeResp.ServiceFee += serviceFee.TotalFee;
+                list.Add(serviceFeeResp);
+            }
+            feeResp.ServiceFeeList = list;
+            foreach (var payment in paymentList)
+            {
+                var fpr = new FeePaymentResp();
+                fpr.Id = payment.Id;
+                fpr.Amount = payment.Amount;
+                flist.Add(fpr);
+            }
+            feeResp.FeePaymentList = flist;
+            feeResp.TotalFee = feeResp.ManagementFee + feeResp.ParkingFee + feeResp.ServiceFee;
+            if (feeResp.ReceivedAmount >= feeResp.TotalFee) fee.Status = FeeStatus.Paid;
+            else if (fee.ExpiredDate <= await _timeConverterService.ConvertToUTCTime(DateTime.Now)) fee.Status = FeeStatus.Expired;
+            if (fee.Status == FeeStatus.OnGoing) feeResp.Status = "Còn hạn";
+            else if (fee.Status == FeeStatus.Expired) feeResp.Status = "Quá hạn";
+            else if (fee.Status == FeeStatus.Paid) feeResp.Status = "Hoàn thiện";
+            return feeResp;
         }
         public async Task<ApiResponseExpose<FeePayment>> AddFeePayment(AppUser user, FeePaymentCreateReq req)
         {
