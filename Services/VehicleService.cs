@@ -14,9 +14,9 @@ namespace CNPM_BE.Services
             _context = context;
             _timeConverterService = timeConverterService;
         }
-        public async Task<ApiResp> AddVehicle(AppUser user, VehicleCreateReq req)
+        public async Task<ApiResponseExpose<VehicleResp>> AddVehicle(AppUser user, VehicleCreateReq req)
         {
-            var resp = new ApiResp();
+            var resp = new ApiResponseExpose<VehicleResp>();
             var newVehicle = new Vehicle();
             var owner = await _context.Resident.FirstOrDefaultAsync(r => r.Id == req.OwnerId && r.CreatorId == user.Id && r.Status == ResidentStatus.Active);
             //var ex = await _context.Vehicle.FirstOrDefaultAsync(v => v.CreatorId == user.Id && v.VehicleCode == req.VehicleCode && v.Status == VehicleStatus.Active);
@@ -55,12 +55,14 @@ namespace CNPM_BE.Services
                 return resp;
             }
             resp.code = 1;
+            var vht = await _context.VehicleType.FirstOrDefaultAsync(vh => vh.Id == req.VehicleTypeId);
+            resp.entity = new VehicleResp(newVehicle, owner, vht);
             resp.message = "Thêm phương tiện thành công";
             return resp;
         }
-        public async Task<ApiResp> RemoveVehicle(AppUser user, int req)
+        public async Task<ApiResponseExpose<VehicleResp>> RemoveVehicle(AppUser user, int req)
         {
-            var resp = new ApiResp();
+            var resp = new ApiResponseExpose<VehicleResp>();
             var vehicle = await _context.Vehicle.FirstOrDefaultAsync(v => v.CreatorId == user.Id && v.Id == req && v.Status == VehicleStatus.Active);
             if (vehicle == null)
             {
@@ -82,11 +84,14 @@ namespace CNPM_BE.Services
             }
             resp.code = 1;
             resp.message = "Xóa phương tiện thành công";
+            var vht = await _context.VehicleType.FirstOrDefaultAsync(vh => vh.Id == vehicle.VehicleTypeId);
+            var owner = await _context.Resident.FirstOrDefaultAsync(r => r.Id == vehicle.OwnerId && r.CreatorId == user.Id && r.Status == ResidentStatus.Active);
+            resp.entity = new VehicleResp(vehicle, owner, vht);
             return resp;
         }
-        public async Task<ApiResp> UpdateVehicleInformation(AppUser user, Vehicle req)
+        public async Task<ApiResponseExpose<VehicleResp>> UpdateVehicleInformation(AppUser user, Vehicle req)
         {
-            var resp = new ApiResp();
+            var resp = new ApiResponseExpose<VehicleResp>();
             var vehicle = await _context.Vehicle.FirstOrDefaultAsync(v => v.Id == req.Id && v.CreatorId == user.Id && v.Status == VehicleStatus.Active);
             if (vehicle == null)
             {
@@ -109,6 +114,9 @@ namespace CNPM_BE.Services
             }
             resp.code = 1;
             resp.message = "Cập nhật thông tin phương tiện thành công";
+            var vht = await _context.VehicleType.FirstOrDefaultAsync(vh => vh.Id == vehicle.VehicleTypeId);
+            var owner = await _context.Resident.FirstOrDefaultAsync(r => r.Id == vehicle.OwnerId && r.CreatorId == user.Id && r.Status == ResidentStatus.Active);
+            resp.entity = new VehicleResp(vehicle, owner, vht);
             return resp;
         }
         public async Task<List<VehicleResp>> GetVehicleList(AppUser user)

@@ -15,9 +15,9 @@ namespace CNPM_BE.Services
             _timeConverterService = timeConverterService;
         }
 
-        public async Task<ApiResponseExpose<Resident>> AddResident(AppUser user, ResidentCreateReq req)
+        public async Task<ApiResponseExpose<ResidentResp>> AddResident(AppUser user, ResidentCreateReq req)
         {
-            var resp = new ApiResponseExpose<Resident>();
+            var resp = new ApiResponseExpose<ResidentResp>();
 
             var newResident = new Resident();
             var ex = await _context.Resident.FirstOrDefaultAsync(r => r.ResidentCode == req.ResidentCode && r.CreatorId == user.Id && r.Status != ResidentStatus.Deleted);
@@ -79,14 +79,13 @@ namespace CNPM_BE.Services
 
             resp.code = 1;
             resp.message = "Thêm cư dân mã " + req.ResidentCode + " thành công";
-            resp.entity = newResident;
-
+            resp.entity = new ResidentResp(newResident, apartment);
             return resp;
         }
 
-        public async Task<ApiResponseExpose<Resident>> RemoveResident(AppUser user, int req)
+        public async Task<ApiResponseExpose<ResidentResp>> RemoveResident(AppUser user, int req)
         {
-            var resp = new ApiResponseExpose<Resident>();
+            var resp = new ApiResponseExpose<ResidentResp>();
             var resident = await _context.Resident.FirstOrDefaultAsync(r => r.CreatorId == user.Id && r.Id == req && r.Status != ResidentStatus.Deleted);
             if (resident == null)
             {
@@ -128,14 +127,13 @@ namespace CNPM_BE.Services
 
             resp.code = 1;
             resp.message = "Xóa cư dân thành công";
-            resp.entity = resident;
-
+            resp.entity = new ResidentResp(resident, apartment);
             return resp;
         }
 
-        public async Task<ApiResponseExpose<Resident>> UpdateInformation(AppUser user, Resident req)
+        public async Task<ApiResponseExpose<ResidentResp>> UpdateInformation(AppUser user, Resident req)
         {
-            var resp = new ApiResponseExpose<Resident>();
+            var resp = new ApiResponseExpose<ResidentResp>();
             var resident = await _context.Resident.FirstOrDefaultAsync(r => r.Id ==  req.Id && r.CreatorId == user.Id && r.Status != ResidentStatus.Deleted);
             if (resident == null)
             {
@@ -162,7 +160,8 @@ namespace CNPM_BE.Services
 
             resp.code = 1;
             resp.message = "Cập nhật thông tin cư dân thành công";
-            resp.entity = resident;
+            var apartment = await _context.Apartment.FirstOrDefaultAsync(a => a.Id == resident.ApartmentId);
+            resp.entity = new ResidentResp(resident, apartment);
 
             return resp;
         }
