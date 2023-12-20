@@ -18,11 +18,6 @@ namespace CNPM_BE.DTOs
         public ResidentGender Gender { get; set; }
         public bool IsOwner { get; set; }
 
-        /// <summary>
-        /// Trả về thêm trạng thái cư dân
-        /// </summary>
-        public int Status { get; set; }
-
         public ResidentResp(Resident resident, Apartment apartment)
         {
             Id = resident.Id;
@@ -36,10 +31,6 @@ namespace CNPM_BE.DTOs
             PhoneNumber = resident.PhoneNumber;
             CCCD = resident.CCCD;
             IsOwner = resident.IsOwner;
-            /// <summary>
-            /// Trả về thêm trạng thái cư dân
-            /// </summary>
-            Status = (int)resident.Status;
         }
     }
 }
