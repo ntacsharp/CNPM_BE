@@ -170,7 +170,7 @@ namespace CNPM_BE.Services
 
         public async Task<List<ResidentResp>> GetResidentList(AppUser user)
         {
-            var list = await _context.Resident.Where(r => r.CreatorId == user.Id && r.Status == ResidentStatus.Active).ToListAsync();
+            var list = await _context.Resident.Where(r => r.CreatorId == user.Id && r.Status != ResidentStatus.Deleted).ToListAsync();
             var resp = new List<ResidentResp>();
             foreach(var r in list)
             {
