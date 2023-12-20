@@ -20,7 +20,7 @@ namespace CNPM_BE.Services
             var resp = new ApiResponseExpose<Resident>();
 
             var newResident = new Resident();
-            var ex = await _context.Resident.FirstOrDefaultAsync(r => r.ResidentCode == req.ResidentCode && r.CreatorId == user.Id && r.Status == ResidentStatus.Active);
+            var ex = await _context.Resident.FirstOrDefaultAsync(r => r.ResidentCode == req.ResidentCode && r.CreatorId == user.Id && r.Status != ResidentStatus.Deleted);
             if (ex != null)
             {
                 resp.code = -1;
@@ -59,7 +59,7 @@ namespace CNPM_BE.Services
                 resp.message = "Đã có lỗi xảy ra trong quá trình thêm cư dân mã " + req.ResidentCode;
                 return resp;
             }
-            newResident = await _context.Resident.OrderBy(r => r.Id).LastOrDefaultAsync(r => r.CreatorId == user.Id && r.Status == ResidentStatus.Active);
+            newResident = await _context.Resident.OrderBy(r => r.Id).LastOrDefaultAsync(r => r.CreatorId == user.Id && r.Status != ResidentStatus.Deleted);
             if (apartment.Status == ApartmentStatus.Unoccupied)
             {
                 apartment.Status = ApartmentStatus.Occupied;
@@ -87,7 +87,7 @@ namespace CNPM_BE.Services
         public async Task<ApiResponseExpose<Resident>> RemoveResident(AppUser user, int req)
         {
             var resp = new ApiResponseExpose<Resident>();
-            var resident = await _context.Resident.FirstOrDefaultAsync(r => r.CreatorId == user.Id && r.Id == req && r.Status == ResidentStatus.Active);
+            var resident = await _context.Resident.FirstOrDefaultAsync(r => r.CreatorId == user.Id && r.Id == req && r.Status != ResidentStatus.Deleted);
             if (resident == null)
             {
                 resp.code = -1;
@@ -103,7 +103,7 @@ namespace CNPM_BE.Services
             }
             else
             {
-                var newOwner = await _context.Resident.FirstOrDefaultAsync(r => r.ApartmentId == apartment.Id && r.CreatorId == user.Id && r.Status == ResidentStatus.Active);
+                var newOwner = await _context.Resident.FirstOrDefaultAsync(r => r.ApartmentId == apartment.Id && r.CreatorId == user.Id && r.Status != ResidentStatus.Deleted);
                 apartment.OwnerId = newOwner.Id;
                 newOwner.IsOwner = true;
             }
@@ -136,7 +136,7 @@ namespace CNPM_BE.Services
         public async Task<ApiResponseExpose<Resident>> UpdateInformation(AppUser user, Resident req)
         {
             var resp = new ApiResponseExpose<Resident>();
-            var resident = await _context.Resident.FirstOrDefaultAsync(r => r.Id ==  req.Id && r.CreatorId == user.Id && r.Status == ResidentStatus.Active);
+            var resident = await _context.Resident.FirstOrDefaultAsync(r => r.Id ==  req.Id && r.CreatorId == user.Id && r.Status != ResidentStatus.Deleted);
             if (resident == null)
             {
                 resp.code = -1;
@@ -169,7 +169,7 @@ namespace CNPM_BE.Services
 
         public async Task<List<ResidentResp>> GetResidentList(AppUser user)
         {
-            var list = await _context.Resident.Where(r => r.CreatorId == user.Id && r.Status == ResidentStatus.Active).ToListAsync();
+            var list = await _context.Resident.Where(r => r.CreatorId == user.Id && r.Status != ResidentStatus.Deleted).ToListAsync();
             var resp = new List<ResidentResp>();
             foreach(var r in list)
             {
@@ -194,7 +194,7 @@ namespace CNPM_BE.Services
                 //hr.OwnerCode = owner.ResidentCode;
                 //hr.OwnerName = owner.Name;
                 var rlist = new List<ResidentResp>();
-                var residentList = await _context.Resident.Where(r => r.ApartmentId == a.Id && r.Status == ResidentStatus.Active).ToListAsync();
+                var residentList = await _context.Resident.Where(r => r.ApartmentId == a.Id && r.Status != ResidentStatus.Deleted).ToListAsync();
                 foreach(var res in residentList)
                 {
                     var rr = new ResidentResp(res, a);

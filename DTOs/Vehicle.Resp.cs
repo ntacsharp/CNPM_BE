@@ -6,7 +6,7 @@ namespace CNPM_BE.DTOs
     {
         public int Id { get; set; }
         //public string VehicleCode { get; set; }
-        //public string Name { get; set; }
+        public string Name { get; set; }
         public string Plate { get; set; }
         public string OwnerCode { get; set; }
         public string OwnerName { get; set; }
@@ -16,7 +16,7 @@ namespace CNPM_BE.DTOs
         {
             Id = vehicle.Id;
             //VehicleCode = vehicle.VehicleCode;
-            //Name = vehicle.Name;
+            Name = vehicle.Name;
             Plate = vehicle.Plate;
             OwnerCode = resident.ResidentCode;
             OwnerName = resident.Name;

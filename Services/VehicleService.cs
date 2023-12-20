@@ -38,7 +38,7 @@ namespace CNPM_BE.Services
             newVehicle.Status = VehicleStatus.Active;
             newVehicle.Plate = req.Plate;
             newVehicle.CreatedTime = await _timeConverterService.ConvertToUTCTime(DateTime.Now);
-            //newVehicle.Name = req.Name;
+            newVehicle.Name = req.Name;
             newVehicle.OwnerId = req.OwnerId;
             //newVehicle.VehicleCode = req.VehicleCode;
             newVehicle.VehicleTypeId = req.VehicleTypeId;
@@ -51,11 +51,11 @@ namespace CNPM_BE.Services
             catch (Exception)
             {
                 resp.code = -1;
-                resp.message = "Đã có lỗi xảy ra trong quá trình thêm phương tiện mã " + req.VehicleCode;
+                resp.message = "Đã có lỗi xảy ra trong quá trình thêm phương tiện";
                 return resp;
             }
             resp.code = 1;
-            resp.message = "Thêm phương tiện mã " + req.VehicleCode + " thành công";
+            resp.message = "Thêm phương tiện thành công";
             return resp;
         }
         public async Task<ApiResp> RemoveVehicle(AppUser user, int req)
@@ -94,7 +94,7 @@ namespace CNPM_BE.Services
                 resp.message = "Đã có lỗi xảy ra trong quá trình tìm kiếm phương tiện";
                 return resp;
             }
-            //vehicle.Name = req.Name;
+            vehicle.Name = req.Name;
             vehicle.Plate = req.Plate;
             vehicle.VehicleTypeId = req.VehicleTypeId;
             try
