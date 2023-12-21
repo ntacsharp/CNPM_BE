@@ -19,13 +19,13 @@ namespace CNPM_BE.Services
             var resp = new ApiResponseExpose<VehicleResp>();
             var newVehicle = new Vehicle();
             var owner = await _context.Resident.FirstOrDefaultAsync(r => r.Id == req.OwnerId && r.CreatorId == user.Id && r.Status == ResidentStatus.Active);
-            //var ex = await _context.Vehicle.FirstOrDefaultAsync(v => v.CreatorId == user.Id && v.VehicleCode == req.VehicleCode && v.Status == VehicleStatus.Active);
-            //if (ex != null)
-            //{
-            //    resp.code = -1;
-            //    resp.message = "Đã tồn tại phương tiện với mã " + req.VehicleCode;
-            //    return resp;
-            //}
+            var ex = await _context.Vehicle.FirstOrDefaultAsync(v => v.CreatorId == user.Id && v.Plate == req.Plate && v.Status == VehicleStatus.Active && owner.Status == ResidentStatus.Active);
+            if (ex != null)
+            {
+                resp.code = -1;
+                resp.message = "Đã tồn tại phương tiện với biển số " + req.Plate;
+                return resp;
+            }
             var resident = await _context.Resident.FirstOrDefaultAsync(r => r.Id == req.OwnerId && r.Status != ResidentStatus.Deleted && r.CreatorId == user.Id);
             if (resident == null)
             {
