@@ -234,9 +234,9 @@ namespace CNPM_BE.Services
             resp.entity = e;
             return resp;
         }
-        public async Task<ApiResponseExpose<Fee>> RemoveFee(AppUser user, int req)
+        public async Task<ApiResponseExpose<FeeResp>> RemoveFee(AppUser user, int req)
         {
-            var resp = new ApiResponseExpose<Fee>();
+            var resp = new ApiResponseExpose<FeeResp>();
             var fee = await _context.Fee.FirstOrDefaultAsync(f => f.Id == req && f.CreatorId == user.Id && f.Status != FeeStatus.Deleted);
             if (fee == null)
             {
@@ -262,12 +262,12 @@ namespace CNPM_BE.Services
             }
             resp.code = 1;
             resp.message = "Xóa bản thu phí thành công";
-            resp.entity = fee;
+            resp.entity = await CreateFeeResp(fee);
             return resp;
         }
-        public async Task<ApiResponseExpose<Fee>> UpdateFeeInformation(AppUser user, Fee req)
+        public async Task<ApiResponseExpose<FeeResp>> UpdateFeeInformation(AppUser user, Fee req)
         {
-            var resp = new ApiResponseExpose<Fee>();
+            var resp = new ApiResponseExpose<FeeResp>();
             var fee = await _context.Fee.FirstOrDefaultAsync(f => f.Id == req.Id && f.CreatorId == user.Id && f.Status != FeeStatus.Deleted);
             if (fee == null)
             {
@@ -288,7 +288,7 @@ namespace CNPM_BE.Services
             }
             resp.code = 1;
             resp.message = "Cập nhật thông tin bản thu phí thành công";
-            resp.entity = fee; ;
+            resp.entity = await CreateFeeResp(fee);
             return resp;
         }
         public async Task<List<FeeResp>> GetFeeList(AppUser user)
