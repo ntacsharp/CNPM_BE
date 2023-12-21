@@ -189,7 +189,8 @@ namespace CNPM_BE.Services
                     fee.ParkingFee = 0;
                     foreach (var vehicle in vehicleList)
                     {
-                        fee.ParkingFee += (await _vehicleService.GetParkingFee(user, vehicle));
+                        var owner = await _context.Resident.FirstOrDefaultAsync(r => r.Id == vehicle.OwnerId);
+                        if(owner.Status == ResidentStatus.Active) fee.ParkingFee += (await _vehicleService.GetParkingFee(user, vehicle));
                     }
                     foreach (var serviceType in serviceTypeList)
                     {
