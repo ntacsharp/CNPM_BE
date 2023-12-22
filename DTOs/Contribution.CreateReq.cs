@@ -12,5 +12,6 @@
         public int Gratitude { get; set; }
         public int StudyPromotion { get; set; }
         public int ForTheElderly { get; set; }
+        public DateTime CreatedTime { get; set; }
     }
 }

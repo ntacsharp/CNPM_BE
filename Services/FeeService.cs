@@ -115,9 +115,10 @@ namespace CNPM_BE.Services
             var resp = await _context.ServiceFeeType.Where(s => s.CreatorId == user.Id && s.Status == ServiceFeeTypeStatus.Active).Select(s => new ServiceFeeTypeResp(s)).ToListAsync();
             return resp;
         }
-        public async Task<ApiResponseExpose<FeeResp>> AddFee(AppUser user)
+        public async Task<ApiResponseExpose<List<FeeResp>>> AddFee(AppUser user)
         {
-            var resp = new ApiResponseExpose<FeeResp>();
+            var resp = new ApiResponseExpose<List<FeeResp>>();
+            var lfr = new List<FeeResp>();
             var current = await _timeConverterService.ConvertToUTCTime(DateTime.Now);
             var daysInMonth = DateTime.DaysInMonth(current.Year, current.Month);
             DateTime lastDayOfMonth = new DateTime(current.Year, current.Month, daysInMonth);
@@ -183,6 +184,7 @@ namespace CNPM_BE.Services
                             return resp;
                         }
                     }
+                    lfr.Add(await CreateFeeResp(newFee));
                 }
                 else
                 {
@@ -227,12 +229,12 @@ namespace CNPM_BE.Services
                             serviceFee.Status = ServiceFeeStatus.Deleted;
                         }
                     }
+                    lfr.Add(await CreateFeeResp(fee));
                 }
             }
             resp.code = 1;
             resp.message = "Thêm bản thu phí thành công";
-            var e = new FeeResp();
-            resp.entity = e;
+            resp.entity = lfr;
             return resp;
         }
         public async Task<ApiResponseExpose<FeeResp>> RemoveFee(AppUser user, int req)

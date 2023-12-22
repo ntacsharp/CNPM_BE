@@ -29,7 +29,7 @@ namespace CNPM_BE.Services
             contribution.Gratitude = req.Gratitude;
             contribution.StudyPromotion = req.StudyPromotion;
             contribution.ForTheElderly = req.ForTheElderly;
-            contribution.CreatedTime = await _timeConverterService.ConvertToUTCTime(DateTime.Now);
+            contribution.CreatedTime = await _timeConverterService.ConvertToUTCTime(req.CreatedTime);
             contribution.CreatorId = user.Id;
             try
             {
@@ -70,6 +70,7 @@ namespace CNPM_BE.Services
             contribution.Gratitude = req.Gratitude;
             contribution.StudyPromotion = req.StudyPromotion;
             contribution.ForTheElderly = req.ForTheElderly;
+            contribution.CreatedTime = await _timeConverterService.ConvertToUTCTime(req.CreatedTime);
             try
             {
                 await _context.SaveChangesAsync();
