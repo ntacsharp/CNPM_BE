@@ -325,8 +325,10 @@ namespace CNPM_BE.Services
             var owner = await _context.Resident.FirstOrDefaultAsync(r => r.Id == apartment.OwnerId);
             var serviceFeeList = await _context.ServiceFee.Where(f => f.FeeId == fee.Id && f.Status == ServiceFeeStatus.Active).ToListAsync();
             var paymentList = await _context.FeePayment.Where(f => f.FeeId == fee.Id && f.Status == FeePaymentStatus.Active).ToListAsync();
+            var vehicleList = await _context.Vehicle.Where(v => v.ApartmentId == fee.ApartmentId && v.Status == VehicleStatus.Active).ToListAsync();
             var list = new List<ServiceFeeResp>();
             var flist = new List<FeePaymentResp>();
+            var vlist = new List<VehicleResp>();
             feeResp.Id = fee.Id;
             feeResp.ApartmentCode = apartment.ApartmentCode;
             feeResp.Area = apartment.Area;
@@ -351,6 +353,8 @@ namespace CNPM_BE.Services
                 serviceFeeResp.NewCount = serviceFee.NewCount;
                 serviceFeeResp.TotalFee = serviceFee.TotalFee;
                 feeResp.ServiceFee += serviceFee.TotalFee;
+                if (type.ServiceFeeTypeCode == "ST001") feeResp.ElectricityFee = serviceFeeResp.TotalFee;
+                else if (type.ServiceFeeTypeCode == "ST002") feeResp.WaterFee = serviceFeeResp.TotalFee;
                 list.Add(serviceFeeResp);
             }
             feeResp.ServiceFeeList = list;
@@ -362,12 +366,27 @@ namespace CNPM_BE.Services
                 flist.Add(fpr);
             }
             feeResp.FeePaymentList = flist;
+            foreach(var vehicle in  vehicleList)
+            {
+                var r = await _context.Resident.FirstOrDefaultAsync(r => r.Id == vehicle.OwnerId);
+                if (r.Status == ResidentStatus.Deleted) continue;
+                var t = await _context.VehicleType.FirstOrDefaultAsync(v => v.Id == vehicle.VehicleTypeId);
+                var vr = new VehicleResp(vehicle, r, t);
+                vlist.Add(vr);
+            }
+            feeResp.VehicleList = vlist;
             feeResp.TotalFee = feeResp.ParkingFee + feeResp.ServiceFee;
             if (feeResp.ReceivedAmount >= feeResp.TotalFee) fee.Status = FeeStatus.Paid;
             else if (fee.ExpiredDate <= await _timeConverterService.ConvertToUTCTime(DateTime.Now)) fee.Status = FeeStatus.Expired;
-            if (fee.Status == FeeStatus.OnGoing) feeResp.Status = "Còn hạn";
-            else if (fee.Status == FeeStatus.Expired) feeResp.Status = "Quá hạn";
-            else if (fee.Status == FeeStatus.Paid) feeResp.Status = "Hoàn thiện";
+            feeResp.Status = fee.Status;
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
             return feeResp;
         }
         public async Task<ApiResponseExpose<FeePayment>> AddFeePayment(AppUser user, FeePaymentCreateReq req)
