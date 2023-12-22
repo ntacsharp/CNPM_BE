@@ -137,7 +137,6 @@ namespace CNPM_BE.Services
                     newFee.Note = "";
                     newFee.CreatedTime = current;
                     newFee.ExpiredDate = lastDayOfMonth;
-                    newFee.ManagementFee = (int)(7000 * apartment.Area);
                     newFee.ParkingFee = 0;
                     newFee.ReceivedAmount = 0;
                     foreach (var vehicle in vehicleList)
@@ -194,6 +193,20 @@ namespace CNPM_BE.Services
                         var owner = await _context.Resident.FirstOrDefaultAsync(r => r.Id == vehicle.OwnerId);
                         if(owner.Status == ResidentStatus.Active) fee.ParkingFee += (await _vehicleService.GetParkingFee(user, vehicle));
                     }
+                    var serviceFeeList = await _context.ServiceFee.Where(s => s.FeeId == fee.Id && s.Status == ServiceFeeStatus.Active).ToListAsync();
+                    foreach (var serviceFee in serviceFeeList)
+                    {
+                        var serviceType = await _context.ServiceFeeType.FirstOrDefaultAsync(s => s.Id == serviceFee.TypeId);
+                        if (serviceType.Status == ServiceFeeTypeStatus.Deleted)
+                        {
+                            serviceFee.Status = ServiceFeeStatus.Deleted;
+                        }
+                        else if (serviceType.MeasuringUnit == MeasuringUnit.Resident)
+                        {
+                            var residentCount = await _context.Resident.Where(r => r.CreatorId == user.Id && r.ApartmentId == apartment.Id && r.Status == ResidentStatus.Active).CountAsync();
+                            serviceFee.TotalFee = residentCount * serviceType.PricePerUnit;
+                        }
+                    }
                     foreach (var serviceType in serviceTypeList)
                     {
                         var serviceFee = await _context.ServiceFee.FirstOrDefaultAsync(s => s.FeeId == fee.Id && s.TypeId == serviceType.Id && s.CreatorId == user.Id && s.Status == ServiceFeeStatus.Active);
@@ -220,15 +233,7 @@ namespace CNPM_BE.Services
                             }
                         }
                     }
-                    var serviceFeeList = await _context.ServiceFee.Where(s => s.FeeId == fee.Id && s.Status == ServiceFeeStatus.Active).ToListAsync();
-                    foreach(var serviceFee in serviceFeeList)
-                    {
-                        var serviceType = await _context.ServiceFeeType.FirstOrDefaultAsync(s => s.Id == serviceFee.TypeId);
-                        if(serviceType.Status == ServiceFeeTypeStatus.Deleted)
-                        {
-                            serviceFee.Status = ServiceFeeStatus.Deleted;
-                        }
-                    }
+                    
                     lfr.Add(await CreateFeeResp(fee));
                 }
             }
@@ -328,10 +333,10 @@ namespace CNPM_BE.Services
             feeResp.OwnerName = owner.Name;
             feeResp.OwnerCode = owner.ResidentCode;
             feeResp.Note = fee.Note;
-            feeResp.CreatedTime = fee.CreatedTime.ToString();
-            feeResp.ExpiredDate = fee.ExpiredDate.ToString("dd/MM/yyyy");
+            feeResp.StartDate = await _timeConverterService.ConvertToUTCTime(new DateTime(feeResp.CreatedTime.Year, feeResp.CreatedTime.Month, 1));
+            feeResp.CreatedTime = fee.CreatedTime;
+            feeResp.ExpiredDate = fee.ExpiredDate;
             feeResp.ReceivedAmount = fee.ReceivedAmount;
-            feeResp.ManagementFee = fee.ManagementFee;
             feeResp.ParkingFee = fee.ParkingFee;
             feeResp.ServiceFee = 0;
             foreach (var serviceFee in serviceFeeList)
@@ -357,7 +362,7 @@ namespace CNPM_BE.Services
                 flist.Add(fpr);
             }
             feeResp.FeePaymentList = flist;
-            feeResp.TotalFee = feeResp.ManagementFee + feeResp.ParkingFee + feeResp.ServiceFee;
+            feeResp.TotalFee = feeResp.ParkingFee + feeResp.ServiceFee;
             if (feeResp.ReceivedAmount >= feeResp.TotalFee) fee.Status = FeeStatus.Paid;
             else if (fee.ExpiredDate <= await _timeConverterService.ConvertToUTCTime(DateTime.Now)) fee.Status = FeeStatus.Expired;
             if (fee.Status == FeeStatus.OnGoing) feeResp.Status = "Còn hạn";

@@ -8,7 +8,6 @@
         public string Note { get; set; }
         public DateTime CreatedTime { get; set; }
         public DateTime ExpiredDate { get; set; }
-        public int ManagementFee { get; set; }
         public int ParkingFee { get; set; }
         public int ReceivedAmount { get; set; }
         public FeeStatus Status { get; set; }

@@ -8,11 +8,11 @@
         public string OwnerCode { get; set; }
         public string OwnerName { get; set; }
         public string Note { get; set; }
-        public string CreatedTime { get; set; }
-        public string ExpiredDate { get; set; }
+        public DateTime CreatedTime { get; set; }
+        public DateTime StartDate { get; set; }
+        public DateTime ExpiredDate { get; set; }
         public int TotalFee { get; set; }
         public string Status { get; set; }
-        public int ManagementFee { get; set; }
         public int ParkingFee { get; set; }
         public int ServiceFee { get; set; }
         public int ReceivedAmount { get; set; }

@@ -93,11 +93,20 @@ namespace CNPM_BE.Services
             t3.MeasuringUnit = MeasuringUnit.M3;
             t3.Status = ServiceFeeTypeStatus.Active;
             t3.IsSystem = true;
+            var t4 = new ServiceFeeType();
+            t4.CreatorId = newUser.Id;
+            t4.ServiceFeeTypeCode = "ST004";
+            t4.Name = "Phí quản lý chung cư";
+            t4.PricePerUnit = 7000;
+            t4.MeasuringUnit = MeasuringUnit.M2;
+            t4.Status = ServiceFeeTypeStatus.Active;
+            t4.IsSystem = true;
             try
             {
                 await _context.ServiceFeeType.AddAsync(t1);
                 await _context.ServiceFeeType.AddAsync(t2);
                 await _context.ServiceFeeType.AddAsync(t3);
+                await _context.ServiceFeeType.AddAsync(t4);
                 await _context.SaveChangesAsync();
             }
             catch (Exception)
