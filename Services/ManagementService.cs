@@ -43,7 +43,7 @@ namespace CNPM_BE.Services
             newResident.BirthDate = await _timeConverterService.ConvertToUTCTime(req.BirthDate);
             newResident.Career = req.Career;
             newResident.Gender = (ResidentGender)req.Gender;
-            newResident.Status = (ResidentStatus)req.Status;
+            newResident.Status = ResidentStatus.Active;
             newResident.CreatedTime = await _timeConverterService.ConvertToUTCTime(DateTime.Now);
             newResident.PhoneNumber = req.PhoneNumber;
             newResident.CCCD = req.CCCD;
