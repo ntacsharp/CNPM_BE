@@ -13,11 +13,11 @@
     }
     public enum MeasuringUnit
     {
-        Resident,
-        Apartment,
-        M2,
-        Number,
-        M3
+        Resident, // người/tháng
+        Apartment, // hộ/tháng
+        M2, // m vuông
+        Number, // số
+        M3 // m khối
     }
     public enum ServiceFeeTypeStatus
     {

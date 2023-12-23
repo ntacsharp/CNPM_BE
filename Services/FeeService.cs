@@ -348,7 +348,7 @@ namespace CNPM_BE.Services
                 serviceFeeResp.Id = serviceFee.Id;
                 serviceFeeResp.Name = type.Name;
                 serviceFeeResp.PricePerUnit = type.PricePerUnit;
-                serviceFeeResp.MeasuringUnit = type.MeasuringUnit.ToString();
+                serviceFeeResp.MeasuringUnit = type.MeasuringUnit;
                 serviceFeeResp.OldCount = serviceFee.OldCount;
                 serviceFeeResp.NewCount = serviceFee.NewCount;
                 serviceFeeResp.TotalFee = serviceFee.TotalFee;

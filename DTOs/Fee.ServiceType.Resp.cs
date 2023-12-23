@@ -8,7 +8,7 @@ namespace CNPM_BE.DTOs
         public string ServiceFeeTypeCode { get; set; }
         public string Name { get; set; }
         public int PricePerUnit { get; set; }
-        public int MeasuringUnit { get; set; }
+        public MeasuringUnit MeasuringUnit { get; set; }
         public bool IsSystem {  get; set; }
         public ServiceFeeTypeResp(ServiceFeeType sft)
         {
@@ -16,7 +16,7 @@ namespace CNPM_BE.DTOs
             ServiceFeeTypeCode = sft.ServiceFeeTypeCode;
             Name = sft.Name;
             PricePerUnit = sft.PricePerUnit;
-            MeasuringUnit = (int)sft.MeasuringUnit;
+            MeasuringUnit = sft.MeasuringUnit;
             IsSystem = sft.IsSystem;
         }
     }
