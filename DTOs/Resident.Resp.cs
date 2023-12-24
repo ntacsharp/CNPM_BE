@@ -9,6 +9,7 @@ namespace CNPM_BE.DTOs
 
         // id căn hộ
         public int ApartmentId { get; set; }
+        public string ApartmentCode { get; set; }
         public string PhoneNumber { get; set; }
         public string CCCD { get; set; }
         public string Position { get; set; }
@@ -24,6 +25,7 @@ namespace CNPM_BE.DTOs
             Id = resident.Id;
             ResidentCode = resident.ResidentCode;
             ApartmentId = apartment.Id;
+            ApartmentCode = apartment.ApartmentCode;
             Position = apartment.Position;
             Name = resident.Name;
             BirthDate = resident.BirthDate;
