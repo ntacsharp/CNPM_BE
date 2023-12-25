@@ -363,6 +363,7 @@ namespace CNPM_BE.Services
                 var fpr = new FeePaymentResp();
                 fpr.Id = payment.Id;
                 fpr.Amount = payment.Amount;
+                fpr.CreatedTime = payment.CreatedTime;
                 flist.Add(fpr);
             }
             feeResp.FeePaymentList = flist;

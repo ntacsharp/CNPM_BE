@@ -202,7 +202,7 @@ namespace CNPM_BE.Services
             user.BankName = req.BankName;
             user.BankAccountNumber = req.BankAccountNumber;
             user.FacebookLink = req.FacebookLink;
-            user.ZaloLink = req.ZaloLink;
+            if(req.ZaloLink != null) user.ZaloLink = req.ZaloLink;
             try
             {
                 await _context.SaveChangesAsync();
