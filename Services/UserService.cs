@@ -137,6 +137,8 @@ namespace CNPM_BE.Services
             {
                 new Claim(ClaimTypes.NameIdentifier,user.Username),
                 new Claim(ClaimTypes.Email,user.Email),
+                new Claim("username",user.Username),
+                new Claim("email",user.Email),
             };
             var token = new JwtSecurityToken(_config["Jwt:Issuer"],
                 _config["Jwt:Audience"],
@@ -169,22 +171,28 @@ namespace CNPM_BE.Services
             resp.message = "Đổi mật khẩu thành công";
             return resp;
         }
-        public async Task<AppUser> GetUser(ClaimsPrincipal user)
+        //public async Task<AppUser> GetUser(ClaimsPrincipal user)
+        //{
+        //    var tmp = user;
+        //    var username = user.Claims.First(c => c.Type == "username").Value;
+        //    if (username == null)
+        //    {
+                
+        //    }
+        //    Console.Write(tmp);
+        //    var x = await GetUser(username);
+        //    return x;
+        //}
+        public async Task<AppUser> GetUser(string username)
         {
-            var email = user.Claims.First(c => c.Type == "email").Value;
-            var x = await GetUser(email);
-            return x;
-        }
-        public async Task<AppUser> GetUser(string email)
-        {
-            var user = await _context.AppUser.FirstOrDefaultAsync(a => a.Email == email);
+            var user = await _context.AppUser.FirstOrDefaultAsync(a => a.Username == username);
             return user;
         }
-        public async Task<AppUser> GetUser()
-        {
-            var user = await _context.AppUser.FirstOrDefaultAsync();
-            return user;
-        }
+        //public async Task<AppUser> GetUser()
+        //{
+        //    var user = await _context.AppUser.FirstOrDefaultAsync();
+        //    return user;
+        //}
         public async Task<ApiResponseExpose<AccountUpdateReq>> UpdateInformation(AppUser user, AccountUpdateReq req)
         {
             var resp = new ApiResponseExpose<AccountUpdateReq>();
@@ -211,6 +219,22 @@ namespace CNPM_BE.Services
             resp.entity = req;
 
             return resp;
+        }
+        public async Task<string> GetUsernameFromToken(HttpRequest request)
+        {
+            try
+            {
+                var token = request.Headers["Authorization"];
+                var jwtString = token.ToString().Substring(7);
+                var decoded = new JwtSecurityToken(jwtEncodedString: jwtString);
+                var username = decoded.Claims.First(c => c.Type == "username").Value;
+                return username;
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+
         }
     }
 }

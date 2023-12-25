@@ -18,7 +18,8 @@ namespace CNPM_BE.Controllers
         [HttpPut]
         public async Task<ActionResult> UpdateInformation(ServiceFee req)
         {
-            var user = await _userService.GetUser();
+            var userName = await _userService.GetUsernameFromToken(Request);
+            var user = await _userService.GetUser(userName);
             if (user == null)
             {
                 return NotFound();

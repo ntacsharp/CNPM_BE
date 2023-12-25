@@ -3,6 +3,7 @@ using CNPM_BE.DTOs;
 using CNPM_BE.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace CNPM_BE.Controllers
 {
@@ -17,6 +18,7 @@ namespace CNPM_BE.Controllers
             _context = context;
             _userService = userService;
         }
+
         [HttpPost]
         [ActionName("Login")]
         public async Task<ActionResult> Login(LoginReq req)
@@ -46,7 +48,8 @@ namespace CNPM_BE.Controllers
         [ActionName("ChangePassword")]
         public async Task<ActionResult> ChangePassword(ChangePasswordReq req)
         {
-            var user = await _userService.GetUser();
+            var userName = await _userService.GetUsernameFromToken(Request);
+            var user = await _userService.GetUser(userName);
             if (user == null)
             {
                 return NotFound();
@@ -59,7 +62,8 @@ namespace CNPM_BE.Controllers
         [ActionName("UpdateInformation")]
         public async Task<ActionResult> UpdateInformation(AccountUpdateReq req)
         {
-            var user = await _userService.GetUser();
+            var userName = await _userService.GetUsernameFromToken(Request);
+            var user = await _userService.GetUser(userName);
             if (user == null)
             {
                 return NotFound();

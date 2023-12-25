@@ -21,7 +21,8 @@ namespace CNPM_BE.Controllers
         [HttpPost]
         public async Task<ActionResult> AddApartment(ApartmentCreateReq req)
         {
-            var user = await _userService.GetUser();
+            var userName = await _userService.GetUsernameFromToken(Request);
+            var user = await _userService.GetUser(userName);
             if (user == null)
             {
                 return NotFound();
@@ -33,7 +34,8 @@ namespace CNPM_BE.Controllers
         [HttpGet]
         public async Task<ActionResult> GetApartmentList()
         {
-            var user = await _userService.GetUser();
+            var userName = await _userService.GetUsernameFromToken(Request);
+            var user = await _userService.GetUser(userName);
             if (user == null)
             {
                 return NotFound();
@@ -45,7 +47,8 @@ namespace CNPM_BE.Controllers
         [HttpPut]
         public async Task<ActionResult> UpdateInformation(Apartment req)
         {
-            var user = await _userService.GetUser();
+            var userName = await _userService.GetUsernameFromToken(Request);
+            var user = await _userService.GetUser(userName);
             if (user == null)
             {
                 return NotFound();
@@ -58,7 +61,8 @@ namespace CNPM_BE.Controllers
         [HttpDelete("{req}")]
         public async Task<ActionResult> RemoveApartment([FromRoute] int req)
         {
-            var user = await _userService.GetUser();
+            var userName = await _userService.GetUsernameFromToken(Request);
+            var user = await _userService.GetUser(userName);
             if (user == null)
             {
                 return NotFound();

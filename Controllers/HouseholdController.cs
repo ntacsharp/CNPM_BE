@@ -20,7 +20,8 @@ namespace CNPM_BE.Controllers
         [HttpGet]
         public async Task<ActionResult> GetHouseholdList()
         {
-            var user = await _userService.GetUser();
+            var userName = await _userService.GetUsernameFromToken(Request);
+            var user = await _userService.GetUser(userName);
             if (user == null)
             {
                 return NotFound();
