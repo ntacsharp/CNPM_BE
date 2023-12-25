@@ -324,7 +324,7 @@ namespace CNPM_BE.Services
             var apartment = await _context.Apartment.FirstOrDefaultAsync(a => a.Id == fee.ApartmentId);
             var owner = await _context.Resident.FirstOrDefaultAsync(r => r.Id == apartment.OwnerId);
             var serviceFeeList = await _context.ServiceFee.Where(f => f.FeeId == fee.Id && f.Status == ServiceFeeStatus.Active).ToListAsync();
-            var paymentList = await _context.FeePayment.Where(f => f.FeeId == fee.Id && f.Status == FeePaymentStatus.Active).ToListAsync();
+            var paymentList = await _context.FeePayment.Where(f => f.FeeId == fee.Id && f.Status == FeePaymentStatus.Active).OrderBy(f => f.CreatedTime).ToListAsync();
             var vehicleList = await _context.Vehicle.Where(v => v.ApartmentId == fee.ApartmentId && v.Status == VehicleStatus.Active).ToListAsync();
             var list = new List<ServiceFeeResp>();
             var flist = new List<FeePaymentResp>();
@@ -397,7 +397,7 @@ namespace CNPM_BE.Services
             feePayment.FeeId = req.Id;
             feePayment.Amount = req.Amount;
             feePayment.CreatorId = user.Id;
-            feePayment.CreatedTime = await _timeConverterService.ConvertToUTCTime(DateTime.Now);
+            feePayment.CreatedTime = await _timeConverterService.ConvertToUTCTime(req.CreatedTime);
             feePayment.Status = FeePaymentStatus.Active;
             fee.ReceivedAmount += req.Amount;
             try
