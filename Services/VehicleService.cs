@@ -63,7 +63,7 @@ namespace CNPM_BE.Services
         public async Task<ApiResponseExpose<VehicleResp>> RemoveVehicle(AppUser user, int req)
         {
             var resp = new ApiResponseExpose<VehicleResp>();
-            var vehicle = await _context.Vehicle.FirstOrDefaultAsync(v => v.Id == req && v.Status == VehicleStatus.Active);
+            var vehicle = await _context.Vehicle.FirstOrDefaultAsync(v => v.Id == req && v.Status != VehicleStatus.Deleted);
             if (vehicle == null)
             {
                 resp.code = -1;
@@ -85,14 +85,14 @@ namespace CNPM_BE.Services
             resp.code = 1;
             resp.message = "Xóa phương tiện thành công";
             var vht = await _context.VehicleType.FirstOrDefaultAsync(vh => vh.Id == vehicle.VehicleTypeId);
-            var owner = await _context.Resident.FirstOrDefaultAsync(r => r.Id == vehicle.OwnerId && r.Status == ResidentStatus.Active);
+            var owner = await _context.Resident.FirstOrDefaultAsync(r => r.Id == vehicle.OwnerId && r.Status != ResidentStatus.Deleted);
             resp.entity = new VehicleResp(vehicle, owner, vht);
             return resp;
         }
         public async Task<ApiResponseExpose<VehicleResp>> UpdateVehicleInformation(AppUser user, Vehicle req)
         {
             var resp = new ApiResponseExpose<VehicleResp>();
-            var vehicle = await _context.Vehicle.FirstOrDefaultAsync(v => v.Id == req.Id && v.Status == VehicleStatus.Active);
+            var vehicle = await _context.Vehicle.FirstOrDefaultAsync(v => v.Id == req.Id && v.Status != VehicleStatus.Deleted);
             if (vehicle == null)
             {
                 resp.code = -1;
@@ -115,13 +115,13 @@ namespace CNPM_BE.Services
             resp.code = 1;
             resp.message = "Cập nhật thông tin phương tiện thành công";
             var vht = await _context.VehicleType.FirstOrDefaultAsync(vh => vh.Id == vehicle.VehicleTypeId);
-            var owner = await _context.Resident.FirstOrDefaultAsync(r => r.Id == vehicle.OwnerId && r.Status == ResidentStatus.Active);
+            var owner = await _context.Resident.FirstOrDefaultAsync(r => r.Id == vehicle.OwnerId && r.Status != ResidentStatus.Deleted);
             resp.entity = new VehicleResp(vehicle, owner, vht);
             return resp;
         }
         public async Task<List<VehicleResp>> GetVehicleList(AppUser user)
         {
-            var list = await _context.Vehicle.Where(v => v.Status == VehicleStatus.Active).ToListAsync();
+            var list = await _context.Vehicle.Where(v => v.Status != VehicleStatus.Deleted).ToListAsync();
             var resp = new List<VehicleResp>();
             foreach (var v in list)
             {
@@ -137,7 +137,7 @@ namespace CNPM_BE.Services
         {
             var resp = new ApiResponseExpose<VehicleTypeResp>();
             var newVehicleType = new VehicleType();
-            var ex = await _context.VehicleType.FirstOrDefaultAsync(v => v.VehicleTypeCode == req.VehicleTypeCode && v.Status == VehicleTypeStatus.Active);
+            var ex = await _context.VehicleType.FirstOrDefaultAsync(v => v.VehicleTypeCode == req.VehicleTypeCode && v.Status != VehicleTypeStatus.Deleted);
             if (ex != null)
             {
                 resp.code = -1;
@@ -167,7 +167,7 @@ namespace CNPM_BE.Services
         public async Task<ApiResponseExpose<VehicleTypeResp>> RemoveVehicleType(AppUser user, int req)
         {
             var resp = new ApiResponseExpose<VehicleTypeResp>();
-            var vehicleType = await _context.VehicleType.FirstOrDefaultAsync(v => v.Id == req && v.Status == VehicleTypeStatus.Active);
+            var vehicleType = await _context.VehicleType.FirstOrDefaultAsync(v => v.Id == req && v.Status != VehicleTypeStatus.Deleted);
             if (vehicleType == null)
             {
                 resp.code = -1;
@@ -175,7 +175,7 @@ namespace CNPM_BE.Services
                 return resp;
             }
             vehicleType.Status = VehicleTypeStatus.Deleted;
-            var vehicleList = await _context.Vehicle.Where(v => v.VehicleTypeId == vehicleType.Id && v.Status == VehicleStatus.Active).ToListAsync();
+            var vehicleList = await _context.Vehicle.Where(v => v.VehicleTypeId == vehicleType.Id && v.Status != VehicleStatus.Deleted).ToListAsync();
             foreach (var vehicle in vehicleList)
             {
                 vehicle.Status = VehicleStatus.Deleted;
@@ -199,7 +199,7 @@ namespace CNPM_BE.Services
         public async Task<ApiResponseExpose<VehicleTypeResp>> UpdateVehicleTypeInformation(AppUser user, VehicleType req)
         {
             var resp = new ApiResponseExpose<VehicleTypeResp>();
-            var vehicleType = await _context.VehicleType.FirstOrDefaultAsync(v => v.Id == req.Id && v.Status == VehicleTypeStatus.Active);
+            var vehicleType = await _context.VehicleType.FirstOrDefaultAsync(v => v.Id == req.Id && v.Status != VehicleTypeStatus.Deleted);
             if (vehicleType == null)
             {
                 resp.code = -1;
@@ -225,7 +225,7 @@ namespace CNPM_BE.Services
         }
         public async Task<List<VehicleTypeResp>> GetVehicleTypeList(AppUser user)
         {
-            var resp = await _context.VehicleType.Where(v => v.Status == VehicleTypeStatus.Active).Select(v => new VehicleTypeResp(v)).ToListAsync();
+            var resp = await _context.VehicleType.Where(v => v.Status != VehicleTypeStatus.Deleted).Select(v => new VehicleTypeResp(v)).ToListAsync();
             return resp;
         }
         public async Task<int> GetParkingFee(AppUser user, Vehicle v)
