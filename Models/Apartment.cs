@@ -9,7 +9,7 @@
         public string Position { get; set; }
         public double Area {  get; set; }
         public int RoomCount { get; set; }
-        public int Price { get; set; }
+        public long Price { get; set; }
         public ApartmentStatus Status { get; set; }
     }
     public enum ApartmentStatus

@@ -46,8 +46,8 @@ namespace CNPM_BE.Services
             var newUser = new AppUser();
             newUser.Username = req.Username;
             newUser.Email = req.Email;
-            newUser.Name = "";
-            newUser.PhoneNumber = "";
+            newUser.Name = req.Name;
+            newUser.PhoneNumber = req.PhoneNumber;
             newUser.BankName = "";
             newUser.BankAccountNumber = "";
             newUser.FacebookLink = "";
@@ -161,7 +161,7 @@ namespace CNPM_BE.Services
             {
                 await _context.SaveChangesAsync();
             }
-            catch(Exception ex)
+            catch(Exception)
             {
                 resp.code = -1;
                 resp.message = "Đã có lỗi xảy ra!";
