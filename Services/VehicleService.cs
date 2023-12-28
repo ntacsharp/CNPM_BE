@@ -126,7 +126,7 @@ namespace CNPM_BE.Services
             foreach (var v in list)
             {
                 var a = await _context.Resident.FirstOrDefaultAsync(r => r.Id == v.OwnerId);
-                if(a.Status != ResidentStatus.Active) continue;
+                if(a.Status == ResidentStatus.Deleted) continue;
                 var vht = await _context.VehicleType.FirstOrDefaultAsync(vh => vh.Id == v.VehicleTypeId);
                 var vr = new VehicleResp(v, a, vht);
                 resp.Add(vr);

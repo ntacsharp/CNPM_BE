@@ -108,7 +108,7 @@ namespace CNPM_BE.Services
             }
             resident.Status = ResidentStatus.Deleted;
             resident.DeletedTime = await _timeConverterService.ConvertToUTCTime(DateTime.Now);
-            var vehicleList = await _context.Vehicle.Where(v => v.OwnerId == resident.Id && v.Status == VehicleStatus.Active).ToListAsync();
+            var vehicleList = await _context.Vehicle.Where(v => v.OwnerId == resident.Id && v.Status != VehicleStatus.Deleted).ToListAsync();
             foreach (var vehicle in vehicleList)
             {
                 vehicle.Status = VehicleStatus.Deleted;
@@ -202,7 +202,7 @@ namespace CNPM_BE.Services
                 }
                 hr.ResidentList = rlist;
                 var vlist = new List<VehicleResp>();
-                var vehicleList = await _context.Vehicle.Where(v => v.ApartmentId == a.Id && v.Status == VehicleStatus.Active).ToListAsync();
+                var vehicleList = await _context.Vehicle.Where(v => v.ApartmentId == a.Id && v.Status != VehicleStatus.Deleted).ToListAsync();
                 foreach (var veh in vehicleList)
                 {
                     var owner = await _context.Resident.FirstOrDefaultAsync(r => r.Id == veh.OwnerId);

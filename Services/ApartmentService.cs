@@ -66,12 +66,12 @@ namespace CNPM_BE.Services
             }
 
             apartment.Status = ApartmentStatus.Deleted;
-            var residentList = await _context.Resident.Where(r => r.ApartmentId == apartment.Id && r.Status == ResidentStatus.Active).ToListAsync();
+            var residentList = await _context.Resident.Where(r => r.ApartmentId == apartment.Id && r.Status != ResidentStatus.Deleted).ToListAsync();
             foreach (var res in residentList)
             {
                 res.Status = ResidentStatus.Deleted;
                 res.DeletedTime = await _timeConverterService.ConvertToUTCTime(DateTime.Now);
-                var vehicleList = await _context.Vehicle.Where(v => v.OwnerId == res.Id && v.Status == VehicleStatus.Active).ToListAsync();
+                var vehicleList = await _context.Vehicle.Where(v => v.OwnerId == res.Id && v.Status != VehicleStatus.Deleted).ToListAsync();
                 foreach (var vehicle in vehicleList)
                 {
                     vehicle.Status = VehicleStatus.Deleted;
