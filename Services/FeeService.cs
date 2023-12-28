@@ -384,6 +384,7 @@ namespace CNPM_BE.Services
             feeResp.TotalFee = feeResp.ParkingFee + feeResp.ServiceFee;
             if (feeResp.ReceivedAmount >= feeResp.TotalFee) fee.Status = FeeStatus.Paid;
             else if (fee.ExpiredDate <= await _timeConverterService.ConvertToUTCTime(DateTime.Now)) fee.Status = FeeStatus.Expired;
+            else fee.Status = FeeStatus.OnGoing;
             feeResp.Status = fee.Status;
             try
             {
