@@ -3,7 +3,6 @@
     public class ServiceFeeType
     {
         public int Id { get; set; }
-        public int CreatorId { get; set; }
         public string ServiceFeeTypeCode { get; set; }
         public string Name { get; set; }
         public int PricePerUnit { get; set; }

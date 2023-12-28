@@ -21,7 +21,7 @@ namespace CNPM_BE.Services
         {
             var resp = new ApiResponseExpose<ServiceFeeTypeResp>();
             var newServiceFeeType = new ServiceFeeType();
-            var ex = await _context.ServiceFeeType.FirstOrDefaultAsync(s => s.ServiceFeeTypeCode == req.ServiceFeeTypeCode && s.CreatorId == user.Id && s.Status == ServiceFeeTypeStatus.Active);
+            var ex = await _context.ServiceFeeType.FirstOrDefaultAsync(s => s.ServiceFeeTypeCode == req.ServiceFeeTypeCode && s.Status == ServiceFeeTypeStatus.Active);
             if (ex != null)
             {
                 resp.code = -1;
@@ -32,7 +32,6 @@ namespace CNPM_BE.Services
             newServiceFeeType.Name = req.Name;
             newServiceFeeType.PricePerUnit = req.PricePerUnit;
             newServiceFeeType.MeasuringUnit = (MeasuringUnit)req.MeasuringUnit;
-            newServiceFeeType.CreatorId = user.Id;
             newServiceFeeType.Status = ServiceFeeTypeStatus.Active;
             newServiceFeeType.IsSystem = false;
             try
@@ -54,7 +53,7 @@ namespace CNPM_BE.Services
         public async Task<ApiResponseExpose<ServiceFeeTypeResp>> RemoveServiceFeeType(AppUser user, int req)
         {
             var resp = new ApiResponseExpose<ServiceFeeTypeResp>();
-            var serviceFeeType = await _context.ServiceFeeType.FirstOrDefaultAsync(s => s.CreatorId == user.Id && s.Id == req && s.Status == ServiceFeeTypeStatus.Active);
+            var serviceFeeType = await _context.ServiceFeeType.FirstOrDefaultAsync(s => s.Id == req && s.Status == ServiceFeeTypeStatus.Active);
             if (serviceFeeType == null)
             {
                 resp.code = -1;
@@ -86,7 +85,7 @@ namespace CNPM_BE.Services
         public async Task<ApiResponseExpose<ServiceFeeTypeResp>> UpdateServiceFeeTypeInformation(AppUser user, ServiceFeeType req)
         {
             var resp = new ApiResponseExpose<ServiceFeeTypeResp>();
-            var serviceFeeType = await _context.ServiceFeeType.FirstOrDefaultAsync(v => v.Id == req.Id && v.CreatorId == user.Id && v.Status == ServiceFeeTypeStatus.Active);
+            var serviceFeeType = await _context.ServiceFeeType.FirstOrDefaultAsync(v => v.Id == req.Id && v.Status == ServiceFeeTypeStatus.Active);
             if (serviceFeeType == null)
             {
                 resp.code = -1;
@@ -112,7 +111,7 @@ namespace CNPM_BE.Services
         }
         public async Task<List<ServiceFeeTypeResp>> GetServiceFeeTypeList(AppUser user)
         {
-            var resp = await _context.ServiceFeeType.Where(s => s.CreatorId == user.Id && s.Status == ServiceFeeTypeStatus.Active).Select(s => new ServiceFeeTypeResp(s)).ToListAsync();
+            var resp = await _context.ServiceFeeType.Where(s => s.Status == ServiceFeeTypeStatus.Active).Select(s => new ServiceFeeTypeResp(s)).ToListAsync();
             return resp;
         }
         public async Task<ApiResponseExpose<List<FeeResp>>> AddFee(AppUser user)
@@ -122,16 +121,16 @@ namespace CNPM_BE.Services
             var current = await _timeConverterService.ConvertToUTCTime(DateTime.Now);
             var daysInMonth = DateTime.DaysInMonth(current.Year, current.Month);
             DateTime lastDayOfMonth = new DateTime(current.Year, current.Month, daysInMonth);
-            var apartmentList = await _context.Apartment.Where(a => a.CreatorId == user.Id && a.Status == ApartmentStatus.Occupied).ToListAsync();
+            var apartmentList = await _context.Apartment.Where(a => a.Status == ApartmentStatus.Occupied).ToListAsync();
             foreach(var apartment in apartmentList)
             {
                 var fee = await _context.Fee.FirstOrDefaultAsync(f => f.ApartmentId == apartment.Id && f.Status != FeeStatus.Expired && f.Status != FeeStatus.Deleted);
-                var serviceTypeList = await _context.ServiceFeeType.Where(s => s.CreatorId == user.Id && s.Status == ServiceFeeTypeStatus.Active).ToListAsync();
-                var vehicleList = await _context.Vehicle.Where(v => v.CreatorId == user.Id && v.ApartmentId == apartment.Id && v.Status == VehicleStatus.Active).ToListAsync();
+                var serviceTypeList = await _context.ServiceFeeType.Where(s => s.Status == ServiceFeeTypeStatus.Active).ToListAsync();
+                var vehicleList = await _context.Vehicle.Where(v => v.ApartmentId == apartment.Id && v.Status == VehicleStatus.Active).ToListAsync();
                 if (fee == null)
                 {
                     var newFee = new Fee();
-                    var residentCount = await _context.Resident.Where(r => r.CreatorId == user.Id && r.ApartmentId == apartment.Id && r.Status == ResidentStatus.Active).CountAsync();
+                    var residentCount = await _context.Resident.Where(r => r.ApartmentId == apartment.Id && r.Status == ResidentStatus.Active).CountAsync();
                     newFee.CreatorId = user.Id;
                     newFee.ApartmentId = apartment.Id;
                     newFee.Note = "";
@@ -156,7 +155,7 @@ namespace CNPM_BE.Services
                         resp.message = "Đã có lỗi xảy ra trong quá trình thêm bản thu phí";
                         return resp;
                     }
-                    newFee = await _context.Fee.OrderBy(f => f.Id).LastOrDefaultAsync(f => f.CreatorId == user.Id && f.Status != FeeStatus.Deleted);
+                    newFee = await _context.Fee.OrderBy(f => f.Id).LastOrDefaultAsync(f => f.Status != FeeStatus.Deleted);
                     
                     foreach (var serviceType in serviceTypeList)
                     {
@@ -203,13 +202,13 @@ namespace CNPM_BE.Services
                         }
                         else if (serviceType.MeasuringUnit == MeasuringUnit.Resident)
                         {
-                            var residentCount = await _context.Resident.Where(r => r.CreatorId == user.Id && r.ApartmentId == apartment.Id && r.Status == ResidentStatus.Active).CountAsync();
+                            var residentCount = await _context.Resident.Where(r => r.ApartmentId == apartment.Id && r.Status == ResidentStatus.Active).CountAsync();
                             serviceFee.TotalFee = residentCount * serviceType.PricePerUnit;
                         }
                     }
                     foreach (var serviceType in serviceTypeList)
                     {
-                        var serviceFee = await _context.ServiceFee.FirstOrDefaultAsync(s => s.FeeId == fee.Id && s.TypeId == serviceType.Id && s.CreatorId == user.Id && s.Status == ServiceFeeStatus.Active);
+                        var serviceFee = await _context.ServiceFee.FirstOrDefaultAsync(s => s.FeeId == fee.Id && s.TypeId == serviceType.Id && s.Status == ServiceFeeStatus.Active);
                         if (serviceFee == null)
                         {
                             serviceFee = new ServiceFee();
@@ -245,7 +244,7 @@ namespace CNPM_BE.Services
         public async Task<ApiResponseExpose<FeeResp>> RemoveFee(AppUser user, int req)
         {
             var resp = new ApiResponseExpose<FeeResp>();
-            var fee = await _context.Fee.FirstOrDefaultAsync(f => f.Id == req && f.CreatorId == user.Id && f.Status != FeeStatus.Deleted);
+            var fee = await _context.Fee.FirstOrDefaultAsync(f => f.Id == req && f.Status != FeeStatus.Deleted);
             if (fee == null)
             {
                 resp.code = -1;
@@ -276,7 +275,7 @@ namespace CNPM_BE.Services
         public async Task<ApiResponseExpose<FeeResp>> UpdateFeeInformation(AppUser user, Fee req)
         {
             var resp = new ApiResponseExpose<FeeResp>();
-            var fee = await _context.Fee.FirstOrDefaultAsync(f => f.Id == req.Id && f.CreatorId == user.Id && f.Status != FeeStatus.Deleted);
+            var fee = await _context.Fee.FirstOrDefaultAsync(f => f.Id == req.Id && f.Status != FeeStatus.Deleted);
             if (fee == null)
             {
                 resp.code = -1;
@@ -301,7 +300,7 @@ namespace CNPM_BE.Services
         }
         public async Task<List<FeeResp>> GetFeeList(AppUser user)
         {
-            var feeList = await _context.Fee.Where(f => f.CreatorId == user.Id && f.Status != FeeStatus.Deleted).ToListAsync();
+            var feeList = await _context.Fee.Where(f => f.Status != FeeStatus.Deleted).ToListAsync();
             var resp = new List<FeeResp>();
             foreach (var fee in feeList)
             {
@@ -393,7 +392,7 @@ namespace CNPM_BE.Services
         public async Task<ApiResponseExpose<FeePayment>> AddFeePayment(AppUser user, FeePaymentCreateReq req)
         {
             var resp = new ApiResponseExpose<FeePayment>();
-            var fee = await _context.Fee.FirstOrDefaultAsync(f => f.Id == req.Id && f.CreatorId == user.Id);
+            var fee = await _context.Fee.FirstOrDefaultAsync(f => f.Id == req.Id);
             var feePayment = new FeePayment();
             feePayment.FeeId = req.Id;
             feePayment.Amount = req.Amount;
@@ -420,7 +419,7 @@ namespace CNPM_BE.Services
         public async Task<ApiResponseExpose<ServiceFee>> UpdateServiceFeeInformation(AppUser user, ServiceFee req)
         {
             var resp = new ApiResponseExpose<ServiceFee>();
-            var serviceFee = await _context.ServiceFee.FirstOrDefaultAsync(f => f.Id == req.Id && f.CreatorId == user.Id && f.Status != ServiceFeeStatus.Deleted);
+            var serviceFee = await _context.ServiceFee.FirstOrDefaultAsync(f => f.Id == req.Id && f.Status != ServiceFeeStatus.Deleted);
             if (serviceFee == null)
             {
                 resp.code = -1;

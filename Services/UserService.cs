@@ -69,50 +69,6 @@ namespace CNPM_BE.Services
                 return null;
             }
             newUser = await _context.AppUser.OrderBy(u => u.Id).LastOrDefaultAsync();
-            var t1 = new ServiceFeeType();
-            t1.CreatorId = newUser.Id;
-            t1.ServiceFeeTypeCode = "ST001";
-            t1.Name = "Tiền điện";
-            t1.PricePerUnit = 0;
-            t1.MeasuringUnit = MeasuringUnit.Number;
-            t1.Status = ServiceFeeTypeStatus.Active;
-            t1.IsSystem = true;
-            var t2 = new ServiceFeeType();
-            t2.CreatorId = newUser.Id;
-            t2.ServiceFeeTypeCode = "ST002";
-            t2.Name = "Tiền nước";
-            t2.PricePerUnit = 0;
-            t2.MeasuringUnit = MeasuringUnit.M3;
-            t2.Status = ServiceFeeTypeStatus.Active;
-            t2.IsSystem = true;
-            var t3 = new ServiceFeeType();
-            t3.CreatorId = newUser.Id;
-            t3.ServiceFeeTypeCode = "ST003";
-            t3.Name = "Phí dịch vụ chung cư";
-            t3.PricePerUnit = 0;
-            t3.MeasuringUnit = MeasuringUnit.M2;
-            t3.Status = ServiceFeeTypeStatus.Active;
-            t3.IsSystem = true;
-            var t4 = new ServiceFeeType();
-            t4.CreatorId = newUser.Id;
-            t4.ServiceFeeTypeCode = "ST004";
-            t4.Name = "Phí quản lý chung cư";
-            t4.PricePerUnit = 7000;
-            t4.MeasuringUnit = MeasuringUnit.M2;
-            t4.Status = ServiceFeeTypeStatus.Active;
-            t4.IsSystem = true;
-            try
-            {
-                await _context.ServiceFeeType.AddAsync(t1);
-                await _context.ServiceFeeType.AddAsync(t2);
-                await _context.ServiceFeeType.AddAsync(t3);
-                await _context.ServiceFeeType.AddAsync(t4);
-                await _context.SaveChangesAsync();
-            }
-            catch (Exception)
-            {
-                return null;
-            }
             resp.code = 1;
             resp.message = "Đăng ký thành công";
             resp.entity = newUser;

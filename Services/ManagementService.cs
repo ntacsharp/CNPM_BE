@@ -20,7 +20,7 @@ namespace CNPM_BE.Services
             var resp = new ApiResponseExpose<ResidentResp>();
 
             var newResident = new Resident();
-            var ex = await _context.Resident.FirstOrDefaultAsync(r => r.ResidentCode == req.ResidentCode && r.CreatorId == user.Id && r.Status != ResidentStatus.Deleted);
+            var ex = await _context.Resident.FirstOrDefaultAsync(r => r.ResidentCode == req.ResidentCode && r.Status != ResidentStatus.Deleted);
             if (ex != null)
             {
                 resp.code = -1;
@@ -28,7 +28,7 @@ namespace CNPM_BE.Services
                 return resp;
             }
 
-            var apartment = await _context.Apartment.FirstOrDefaultAsync(a => a.Id == req.ApartmentId && a.Status != ApartmentStatus.Deleted && a.CreatorId == user.Id);
+            var apartment = await _context.Apartment.FirstOrDefaultAsync(a => a.Id == req.ApartmentId && a.Status != ApartmentStatus.Deleted);
             if (apartment == null)
             {
                 resp.code = -1;
@@ -59,7 +59,7 @@ namespace CNPM_BE.Services
                 resp.message = "Đã có lỗi xảy ra trong quá trình thêm cư dân mã " + req.ResidentCode;
                 return resp;
             }
-            newResident = await _context.Resident.OrderBy(r => r.Id).LastOrDefaultAsync(r => r.CreatorId == user.Id && r.Status != ResidentStatus.Deleted);
+            newResident = await _context.Resident.OrderBy(r => r.Id).LastOrDefaultAsync(r => r.Status != ResidentStatus.Deleted);
             if (apartment.Status == ApartmentStatus.Unoccupied)
             {
                 apartment.Status = ApartmentStatus.Occupied;
@@ -86,7 +86,7 @@ namespace CNPM_BE.Services
         public async Task<ApiResponseExpose<ResidentResp>> RemoveResident(AppUser user, int req)
         {
             var resp = new ApiResponseExpose<ResidentResp>();
-            var resident = await _context.Resident.FirstOrDefaultAsync(r => r.CreatorId == user.Id && r.Id == req && r.Status != ResidentStatus.Deleted);
+            var resident = await _context.Resident.FirstOrDefaultAsync(r => r.Id == req && r.Status != ResidentStatus.Deleted);
             if (resident == null)
             {
                 resp.code = -1;
@@ -102,13 +102,13 @@ namespace CNPM_BE.Services
             }
             else
             {
-                var newOwner = await _context.Resident.FirstOrDefaultAsync(r => r.ApartmentId == apartment.Id && r.CreatorId == user.Id && r.Status != ResidentStatus.Deleted);
+                var newOwner = await _context.Resident.FirstOrDefaultAsync(r => r.ApartmentId == apartment.Id && r.Status != ResidentStatus.Deleted);
                 apartment.OwnerId = newOwner.Id;
                 newOwner.IsOwner = true;
             }
             resident.Status = ResidentStatus.Deleted;
             resident.DeletedTime = await _timeConverterService.ConvertToUTCTime(DateTime.Now);
-            var vehicleList = await _context.Vehicle.Where(v => v.OwnerId == resident.Id && v.CreatorId == user.Id && v.Status == VehicleStatus.Active).ToListAsync();
+            var vehicleList = await _context.Vehicle.Where(v => v.OwnerId == resident.Id && v.Status == VehicleStatus.Active).ToListAsync();
             foreach (var vehicle in vehicleList)
             {
                 vehicle.Status = VehicleStatus.Deleted;
@@ -134,7 +134,7 @@ namespace CNPM_BE.Services
         public async Task<ApiResponseExpose<ResidentResp>> UpdateInformation(AppUser user, Resident req)
         {
             var resp = new ApiResponseExpose<ResidentResp>();
-            var resident = await _context.Resident.FirstOrDefaultAsync(r => r.Id ==  req.Id && r.CreatorId == user.Id && r.Status != ResidentStatus.Deleted);
+            var resident = await _context.Resident.FirstOrDefaultAsync(r => r.Id == req.Id && r.Status != ResidentStatus.Deleted);
             if (resident == null)
             {
                 resp.code = -1;
@@ -169,7 +169,7 @@ namespace CNPM_BE.Services
 
         public async Task<List<ResidentResp>> GetResidentList(AppUser user)
         {
-            var list = await _context.Resident.Where(r => r.CreatorId == user.Id && r.Status != ResidentStatus.Deleted).ToListAsync();
+            var list = await _context.Resident.Where(r => r.Status != ResidentStatus.Deleted).ToListAsync();
             var resp = new List<ResidentResp>();
             foreach(var r in list)
             {
@@ -182,7 +182,7 @@ namespace CNPM_BE.Services
 
         public async Task<List<HouseholdResp>> GetHouseholdList(AppUser user)
         {
-            var apartmentList = await _context.Apartment.Where(a => a.CreatorId == user.Id && a.Status == ApartmentStatus.Occupied).ToListAsync();
+            var apartmentList = await _context.Apartment.Where(a => a.Status == ApartmentStatus.Occupied).ToListAsync();
             var resp = new List<HouseholdResp>();
             foreach (var a in apartmentList)
             {

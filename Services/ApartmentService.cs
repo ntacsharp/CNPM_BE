@@ -19,7 +19,7 @@ namespace CNPM_BE.Services
         {
             var resp = new ApiResponseExpose<Apartment>();
 
-            var ex = await _context.Apartment.FirstOrDefaultAsync(a => a.CreatorId == user.Id && a.ApartmentCode == req.ApartmentCode && a.Status != ApartmentStatus.Deleted);
+            var ex = await _context.Apartment.FirstOrDefaultAsync(a => a.ApartmentCode == req.ApartmentCode && a.Status != ApartmentStatus.Deleted);
             if(ex != null)
             {
                 resp.code = -1;
@@ -57,7 +57,7 @@ namespace CNPM_BE.Services
         {
             var resp = new ApiResponseExpose<Apartment>();
 
-            var apartment = await _context.Apartment.FirstOrDefaultAsync(a => a.Id == req && a.CreatorId == user.Id && a.Status != ApartmentStatus.Deleted);
+            var apartment = await _context.Apartment.FirstOrDefaultAsync(a => a.Id == req && a.Status != ApartmentStatus.Deleted);
             if (apartment == null)
             {
                 resp.code = -1;
@@ -71,7 +71,7 @@ namespace CNPM_BE.Services
             {
                 res.Status = ResidentStatus.Deleted;
                 res.DeletedTime = await _timeConverterService.ConvertToUTCTime(DateTime.Now);
-                var vehicleList = await _context.Vehicle.Where(v => v.OwnerId == res.Id && v.CreatorId == user.Id && v.Status == VehicleStatus.Active).ToListAsync();
+                var vehicleList = await _context.Vehicle.Where(v => v.OwnerId == res.Id && v.Status == VehicleStatus.Active).ToListAsync();
                 foreach (var vehicle in vehicleList)
                 {
                     vehicle.Status = VehicleStatus.Deleted;
@@ -99,7 +99,7 @@ namespace CNPM_BE.Services
         {
             var resp = new ApiResponseExpose<Apartment>();
 
-            var apartment = await _context.Apartment.FirstOrDefaultAsync(a => a.Id == req.Id && a.CreatorId == user.Id && a.Status != ApartmentStatus.Deleted);
+            var apartment = await _context.Apartment.FirstOrDefaultAsync(a => a.Id == req.Id && a.Status != ApartmentStatus.Deleted);
             if (apartment == null)
             {
                 resp.code = -1;
@@ -130,7 +130,7 @@ namespace CNPM_BE.Services
         }
         public async Task<List<ApartmentResp>> GetApartmentList(AppUser user)
         {
-            var resp = await _context.Apartment.Where(a => a.CreatorId == user.Id && a.Status != ApartmentStatus.Deleted).Select(a => new ApartmentResp(a)).ToListAsync();
+            var resp = await _context.Apartment.Where(a => a.Status != ApartmentStatus.Deleted).Select(a => new ApartmentResp(a)).ToListAsync();
             return resp;
         }
     }

@@ -53,7 +53,7 @@ namespace CNPM_BE.Services
         public async Task<ApiResponseExpose<ContributionResp>> UpdateInformation(AppUser user, Contribution req)
         {
             var resp = new ApiResponseExpose<ContributionResp>();
-            var contribution = await _context.Contribution.FirstOrDefaultAsync(c => c.CreatorId == user.Id && c.Id == req.Id && c.Status == ContributionStatus.Active);
+            var contribution = await _context.Contribution.FirstOrDefaultAsync(c => c.Id == req.Id && c.Status == ContributionStatus.Active);
             if (contribution == null)
             {
                 resp.code = -1;
@@ -93,7 +93,7 @@ namespace CNPM_BE.Services
         public async Task<ApiResponseExpose<ContributionResp>> RemoveContribution(AppUser user, int req)
         {
             var resp = new ApiResponseExpose<ContributionResp>();
-            var contribution = await _context.Contribution.FirstOrDefaultAsync(c => c.Id == req && c.CreatorId == user.Id && c.Status == ContributionStatus.Active);
+            var contribution = await _context.Contribution.FirstOrDefaultAsync(c => c.Id == req && c.Status == ContributionStatus.Active);
             if(contribution == null)
             {
                 resp.code = -1;
@@ -122,7 +122,7 @@ namespace CNPM_BE.Services
 
         public async Task<List<ContributionResp>> GetContributionList(AppUser user)
         {
-            var list = await _context.Contribution.Where(c => c.CreatorId == user.Id && c.Status == ContributionStatus.Active).ToListAsync();
+            var list = await _context.Contribution.Where(c => c.Status == ContributionStatus.Active).ToListAsync();
             var resp = new List<ContributionResp>();
             foreach (var contribution in list)
             {

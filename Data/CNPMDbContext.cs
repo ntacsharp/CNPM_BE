@@ -55,11 +55,6 @@ namespace CNPM_BE.Data
                 .WithMany()
                 .HasForeignKey(x => x.VehicleTypeId)
                 .IsRequired();
-            modelBuilder.Entity<ServiceFeeType>()
-                .HasOne<AppUser>()
-                .WithMany()
-                .HasForeignKey(x => x.CreatorId)
-                .IsRequired();
             modelBuilder.Entity<ServiceFee>()
                 .HasOne<AppUser>()
                 .WithMany()
@@ -119,11 +114,6 @@ namespace CNPM_BE.Data
                 .HasOne<ServiceFeeType>()
                 .WithMany()
                 .HasForeignKey(x => x.TypeId)
-                .IsRequired();
-            modelBuilder.Entity<ServiceFeeType>()
-                .HasOne<AppUser>()
-                .WithMany()
-                .HasForeignKey(x => x.CreatorId)
                 .IsRequired();
             modelBuilder.Entity<FeePayment>()
                 .HasOne<AppUser>()
