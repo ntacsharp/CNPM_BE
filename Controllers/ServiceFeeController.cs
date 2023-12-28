@@ -16,7 +16,7 @@ namespace CNPM_BE.Controllers
             _userService = userService;
         }
         [HttpPut]
-        public async Task<ActionResult> UpdateInformation(ServiceFee req)
+        public async Task<ActionResult> UpdateInformation(List<ServiceFee> req)
         {
             var userName = await _userService.GetUsernameFromToken(Request);
             var user = await _userService.GetUser(userName);

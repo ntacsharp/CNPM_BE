@@ -416,20 +416,33 @@ namespace CNPM_BE.Services
             resp.entity = feePayment;
             return resp;
         }
-        public async Task<ApiResponseExpose<ServiceFee>> UpdateServiceFeeInformation(AppUser user, ServiceFee req)
+        public async Task<ApiResponseExpose<List<ServiceFeeResp>>> UpdateServiceFeeInformation(AppUser user, List<ServiceFee> req)
         {
-            var resp = new ApiResponseExpose<ServiceFee>();
-            var serviceFee = await _context.ServiceFee.FirstOrDefaultAsync(f => f.Id == req.Id && f.Status != ServiceFeeStatus.Deleted);
-            if (serviceFee == null)
+            var resp = new ApiResponseExpose<List<ServiceFeeResp>>();
+            var list = new List<ServiceFeeResp>();
+            foreach (var fee in req)
             {
-                resp.code = -1;
-                resp.message = "Đã có lỗi xảy ra trong quá trình tìm kiếm bản thu phí";
-                return resp;
+                var serviceFee = await _context.ServiceFee.FirstOrDefaultAsync(f => f.Id == fee.Id && f.Status != ServiceFeeStatus.Deleted);
+                if (serviceFee == null)
+                {
+                    resp.code = -1;
+                    resp.message = "Đã có lỗi xảy ra trong quá trình tìm kiếm bản thu phí";
+                    return resp;
+                }
+                var type = await _context.ServiceFeeType.FirstOrDefaultAsync(s => s.Id == fee.TypeId);
+                serviceFee.OldCount = fee.OldCount;
+                serviceFee.NewCount = fee.NewCount;
+                serviceFee.TotalFee = type.PricePerUnit * (fee.NewCount - fee.OldCount);
+                var serviceFeeResp = new ServiceFeeResp();
+                serviceFeeResp.Id = serviceFee.Id;
+                serviceFeeResp.Name = type.Name;
+                serviceFeeResp.PricePerUnit = type.PricePerUnit;
+                serviceFeeResp.MeasuringUnit = type.MeasuringUnit;
+                serviceFeeResp.OldCount = serviceFee.OldCount;
+                serviceFeeResp.NewCount = serviceFee.NewCount;
+                serviceFeeResp.TotalFee = serviceFee.TotalFee;
+                list.Add(serviceFeeResp);
             }
-            var type = await _context.ServiceFeeType.FirstOrDefaultAsync(s => s.Id == req.TypeId);
-            serviceFee.OldCount = req.OldCount;
-            serviceFee.NewCount = req.NewCount;
-            serviceFee.TotalFee = type.PricePerUnit * (req.NewCount - req.OldCount);
             try
             {
                 await _context.SaveChangesAsync();
@@ -442,7 +455,7 @@ namespace CNPM_BE.Services
             }
             resp.code = 1;
             resp.message = "Cập nhật thông tin bản thu phí thành công";
-            resp.entity = serviceFee;
+            resp.entity = list;
             return resp;
         }
     }

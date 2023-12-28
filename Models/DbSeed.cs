@@ -17,7 +17,7 @@ namespace CNPM_BE.Models
                 serviceProvider.GetRequiredService<
                     DbContextOptions<CNPMDbContext>>()))
             {
-                //if(context.VehicleType.Any())
+                //if (context.VehicleType.Any())
                 //{
                 //    return; //DB has been seeded
                 //}
@@ -66,21 +66,50 @@ namespace CNPM_BE.Models
                 //await context.ServiceFeeType.AddAsync(t4);
                 //for (int i = 1; i <= 10; i++)
                 //{
-                //var kiot = new Apartment();
-                //kiot.ApartmentCode = "K" + i.ToString("D3");
-                //kiot.CreatorId = 1;
-                //kiot.Position = "Kiot số " + i.ToString();
-                //kiot.Area = 40;
-                //kiot.RoomCount = 1;
-                //kiot.Price = 6000000;
-                //kiot.Status = ApartmentStatus.Unoccupied;
-                //await context.AddAsync(kiot);
+                //    var kiot = new Apartment();
+                //    kiot.ApartmentCode = "K01" + i.ToString("D2");
+                //    kiot.CreatorId = 1;
+                //    kiot.Position = "Kiot số " + i.ToString();
+                //    kiot.Area = 40;
+                //    kiot.RoomCount = 1;
+                //    kiot.Price = 6000000;
+                //    kiot.Status = ApartmentStatus.Unoccupied;
+                //    await context.AddAsync(kiot);
                 //}
-                //int cnt = 10;
+                //int cnt = 11;
                 //for (int i = 6; i <= 29; i++)
                 //{
-                    
+                //    if (i % 4 == 2) cnt--;
+                //    for (int j = 1; j <= cnt; j++)
+                //    {
+                //        var a = new Apartment();
+                //        a.CreatorId = 1;
+                //        a.Position = "Phòng " + j.ToString() + " tầng " + i.ToString();
+                //        a.ApartmentCode = "A" + i.ToString("D2") + j.ToString("D2");
+                //        a.Area = Math.Round((double)400 / cnt, 2);
+                //        if (a.Area <= 50) a.RoomCount = 1;
+                //        else if (a.Area < 80) a.RoomCount = 2;
+                //        else a.RoomCount = 3;
+                //        if (cnt == 10) a.Price = 3900000;
+                //        else if (cnt == 9) a.Price = 4340000;
+                //        else if (cnt == 8) a.Price = 4950000;
+                //        else if (cnt == 7) a.Price = 5800000;
+                //        else if (cnt == 6) a.Price = 6780000;
+                //        else if (cnt == 5) a.Price = 8210000;
+                //        a.Status = ApartmentStatus.Unoccupied;
+                //        await context.AddAsync(a);
+                //    }
                 //}
+                //var a = new Apartment();
+                //a.CreatorId = 1;
+                //a.Position = "Penhouse";
+                //a.Area = 440;
+                //a.RoomCount = 5;
+                //a.Price = 100000000;
+                //a.Status = ApartmentStatus.Unoccupied;
+                //a.ApartmentCode = "P3001";
+                //await context.AddAsync(a);
+
                 await context.SaveChangesAsync();
             }
         }
