@@ -127,10 +127,10 @@ namespace CNPM_BE.Services
                 var fee = await _context.Fee.FirstOrDefaultAsync(f => f.ApartmentId == apartment.Id && f.Status != FeeStatus.Expired && f.Status != FeeStatus.Deleted);
                 var serviceTypeList = await _context.ServiceFeeType.Where(s => s.Status == ServiceFeeTypeStatus.Active).ToListAsync();
                 var vehicleList = await _context.Vehicle.Where(v => v.ApartmentId == apartment.Id && v.Status == VehicleStatus.Active).ToListAsync();
+                var residentCount = await _context.Resident.Where(r => r.ApartmentId == apartment.Id && r.Status == ResidentStatus.Active).CountAsync();
                 if (fee == null)
                 {
                     var newFee = new Fee();
-                    var residentCount = await _context.Resident.Where(r => r.ApartmentId == apartment.Id && r.Status == ResidentStatus.Active).CountAsync();
                     newFee.CreatorId = user.Id;
                     newFee.ApartmentId = apartment.Id;
                     newFee.Note = "";
@@ -166,7 +166,8 @@ namespace CNPM_BE.Services
                         newServiceFee.OldCount = 0;
                         newServiceFee.NewCount = 0;
                         newServiceFee.TotalFee = 0;
-                        if (serviceType.MeasuringUnit == MeasuringUnit.Apartment) newServiceFee.TotalFee = serviceType.PricePerUnit;
+                        if (serviceType.MeasuringUnit == MeasuringUnit.Resident) newServiceFee.TotalFee = residentCount * serviceType.PricePerUnit;
+                        else if (serviceType.MeasuringUnit == MeasuringUnit.Apartment) newServiceFee.TotalFee = serviceType.PricePerUnit;
                         else if (serviceType.MeasuringUnit == MeasuringUnit.Resident) newServiceFee.TotalFee = serviceType.PricePerUnit * residentCount;
                         else if (serviceType.MeasuringUnit == MeasuringUnit.M2) newServiceFee.TotalFee = (int)(serviceType.PricePerUnit * apartment.Area);
                         newServiceFee.Status = ServiceFeeStatus.Active;
@@ -196,15 +197,11 @@ namespace CNPM_BE.Services
                     foreach (var serviceFee in serviceFeeList)
                     {
                         var serviceType = await _context.ServiceFeeType.FirstOrDefaultAsync(s => s.Id == serviceFee.TypeId);
-                        if (serviceType.Status == ServiceFeeTypeStatus.Deleted)
-                        {
-                            serviceFee.Status = ServiceFeeStatus.Deleted;
-                        }
-                        else if (serviceType.MeasuringUnit == MeasuringUnit.Resident)
-                        {
-                            var residentCount = await _context.Resident.Where(r => r.ApartmentId == apartment.Id && r.Status == ResidentStatus.Active).CountAsync();
-                            serviceFee.TotalFee = residentCount * serviceType.PricePerUnit;
-                        }
+                        if (serviceType.Status == ServiceFeeTypeStatus.Deleted) serviceFee.Status = ServiceFeeStatus.Deleted;
+                        else if (serviceType.MeasuringUnit == MeasuringUnit.Resident) serviceFee.TotalFee = residentCount * serviceType.PricePerUnit;
+                        else if (serviceType.MeasuringUnit == MeasuringUnit.Apartment) serviceFee.TotalFee = serviceType.PricePerUnit;
+                        else if (serviceType.MeasuringUnit == MeasuringUnit.Resident) serviceFee.TotalFee = serviceType.PricePerUnit * residentCount;
+                        else if (serviceType.MeasuringUnit == MeasuringUnit.M2) serviceFee.TotalFee = (int)(serviceType.PricePerUnit * apartment.Area);
                     }
                     foreach (var serviceType in serviceTypeList)
                     {
@@ -232,7 +229,16 @@ namespace CNPM_BE.Services
                             }
                         }
                     }
-                    
+                    try
+                    {
+                        await _context.SaveChangesAsync();
+                    }
+                    catch (Exception)
+                    {
+                        resp.code = -1;
+                        resp.message = "Đã có lỗi xảy ra trong quá trình thêm bản thu phí";
+                        return resp;
+                    }
                     lfr.Add(await CreateFeeResp(fee));
                 }
             }

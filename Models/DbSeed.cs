@@ -60,6 +60,7 @@ namespace CNPM_BE.Models
                 //t4.PricePerUnit = 7000;
                 //t4.MeasuringUnit = MeasuringUnit.M2;
                 //t4.Status = ServiceFeeTypeStatus.Active;
+                //t4.IsSystem = true;
                 //await context.ServiceFeeType.AddAsync(t1);
                 //await context.ServiceFeeType.AddAsync(t2);
                 //await context.ServiceFeeType.AddAsync(t3);
