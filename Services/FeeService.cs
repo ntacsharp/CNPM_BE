@@ -122,10 +122,10 @@ namespace CNPM_BE.Services
             var daysInMonth = DateTime.DaysInMonth(current.Year, current.Month);
             DateTime lastDayOfMonth = new DateTime(current.Year, current.Month, daysInMonth);
             var apartmentList = await _context.Apartment.Where(a => a.Status == ApartmentStatus.Occupied).ToListAsync();
-            foreach(var apartment in apartmentList)
+            var serviceTypeList = await _context.ServiceFeeType.Where(s => s.Status != ServiceFeeTypeStatus.Deleted).ToListAsync();
+            foreach (var apartment in apartmentList)
             {
                 var fee = await _context.Fee.FirstOrDefaultAsync(f => f.ApartmentId == apartment.Id && f.Status != FeeStatus.Expired && f.Status != FeeStatus.Deleted);
-                var serviceTypeList = await _context.ServiceFeeType.Where(s => s.Status != ServiceFeeTypeStatus.Deleted).ToListAsync();
                 var vehicleList = await _context.Vehicle.Where(v => v.ApartmentId == apartment.Id && v.Status != VehicleStatus.Deleted).ToListAsync();
                 var residentCount = await _context.Resident.Where(r => r.ApartmentId == apartment.Id && r.Status != ResidentStatus.Deleted).CountAsync();
                 if (fee == null)
@@ -155,8 +155,7 @@ namespace CNPM_BE.Services
                         resp.message = "Đã có lỗi xảy ra trong quá trình thêm bản thu phí";
                         return resp;
                     }
-                    newFee = await _context.Fee.OrderBy(f => f.Id).LastOrDefaultAsync(f => f.Status != FeeStatus.Deleted);
-                    
+                    newFee = await _context.Fee.OrderBy(f => f.Id).LastOrDefaultAsync();
                     foreach (var serviceType in serviceTypeList)
                     {
                         var newServiceFee = new ServiceFee();
@@ -202,6 +201,16 @@ namespace CNPM_BE.Services
                         else if (serviceType.MeasuringUnit == MeasuringUnit.Apartment) serviceFee.TotalFee = serviceType.PricePerUnit;
                         else if (serviceType.MeasuringUnit == MeasuringUnit.Resident) serviceFee.TotalFee = serviceType.PricePerUnit * residentCount;
                         else if (serviceType.MeasuringUnit == MeasuringUnit.M2) serviceFee.TotalFee = (int)(serviceType.PricePerUnit * apartment.Area);
+                        try
+                        {
+                            await _context.SaveChangesAsync();
+                        }
+                        catch (Exception)
+                        {
+                            resp.code = -1;
+                            resp.message = "Đã có lỗi xảy ra trong quá trình thêm bản thu phí";
+                            return resp;
+                        }
                     }
                     foreach (var serviceType in serviceTypeList)
                     {
@@ -228,16 +237,6 @@ namespace CNPM_BE.Services
                                 return resp;
                             }
                         }
-                    }
-                    try
-                    {
-                        await _context.SaveChangesAsync();
-                    }
-                    catch (Exception)
-                    {
-                        resp.code = -1;
-                        resp.message = "Đã có lỗi xảy ra trong quá trình thêm bản thu phí";
-                        return resp;
                     }
                     lfr.Add(await CreateFeeResp(fee));
                 }
@@ -313,14 +312,6 @@ namespace CNPM_BE.Services
                 var feeResp = await CreateFeeResp(fee);
                 resp.Add(feeResp);
             }
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (Exception ex)
-            {
-                return null;
-            }
             return resp;
         }
         private async Task<FeeResp> CreateFeeResp(Fee fee)
@@ -363,14 +354,14 @@ namespace CNPM_BE.Services
                 list.Add(serviceFeeResp);
             }
             feeResp.ServiceFeeList = list;
-            foreach (var payment in paymentList)
-            {
-                var fpr = new FeePaymentResp();
-                fpr.Id = payment.Id;
-                fpr.Amount = payment.Amount;
-                fpr.CreatedTime = payment.CreatedTime;
-                flist.Add(fpr);
-            }
+            //foreach (var payment in paymentList)
+            //{
+            //    var fpr = new FeePaymentResp();
+            //    fpr.Id = payment.Id;
+            //    fpr.Amount = payment.Amount;
+            //    fpr.CreatedTime = payment.CreatedTime;
+            //    flist.Add(fpr);
+            //}
             feeResp.FeePaymentList = flist;
             foreach(var vehicle in  vehicleList)
             {
@@ -436,7 +427,7 @@ namespace CNPM_BE.Services
                     resp.message = "Đã có lỗi xảy ra trong quá trình tìm kiếm bản thu phí";
                     return resp;
                 }
-                var type = await _context.ServiceFeeType.FirstOrDefaultAsync(s => s.Id == fee.TypeId);
+                var type = await _context.ServiceFeeType.FirstOrDefaultAsync(s => s.Id == serviceFee.TypeId);
                 serviceFee.OldCount = fee.OldCount;
                 serviceFee.NewCount = fee.NewCount;
                 serviceFee.TotalFee = type.PricePerUnit * (fee.NewCount - fee.OldCount);
@@ -449,16 +440,16 @@ namespace CNPM_BE.Services
                 serviceFeeResp.NewCount = serviceFee.NewCount;
                 serviceFeeResp.TotalFee = serviceFee.TotalFee;
                 list.Add(serviceFeeResp);
-            }
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (Exception)
-            {
-                resp.code = -1;
-                resp.message = "Đã có lỗi xảy ra trong quá trình cập nhật thông tin bản thu phí";
-                return resp;
+                try
+                {
+                    await _context.SaveChangesAsync();
+                }
+                catch (Exception)
+                {
+                    resp.code = -1;
+                    resp.message = "Đã có lỗi xảy ra trong quá trình cập nhật thông tin bản thu phí";
+                    return resp;
+                }
             }
             resp.code = 1;
             resp.message = "Cập nhật thông tin bản thu phí thành công";
