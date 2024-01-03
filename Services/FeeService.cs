@@ -182,9 +182,21 @@ namespace CNPM_BE.Services
                             return resp;
                         }
                     }
-                    lfr.Add(await CreateFeeResp(newFee));
+                    //lfr.Add(await CreateFeeResp(newFee));
                 }
-                else
+                //else
+                //{
+                    
+                //    //lfr.Add(await CreateFeeResp(fee));
+                //}
+            }
+            var x = await _context.Fee.Where(f => f.Status != FeeStatus.Deleted).ToListAsync();
+            foreach(var fee in x)
+            {
+                var apartment = await _context.Apartment.FirstOrDefaultAsync(a => a.Id == fee.ApartmentId);
+                var vehicleList = await _context.Vehicle.Where(v => v.ApartmentId == apartment.Id && v.Status != VehicleStatus.Deleted).ToListAsync();
+                var residentCount = await _context.Resident.Where(r => r.ApartmentId == apartment.Id && r.Status != ResidentStatus.Deleted).CountAsync();
+                if (fee.Status != FeeStatus.Expired)
                 {
                     fee.ParkingFee = 0;
                     foreach (var vehicle in vehicleList)
@@ -238,8 +250,9 @@ namespace CNPM_BE.Services
                             }
                         }
                     }
-                    lfr.Add(await CreateFeeResp(fee));
                 }
+                var fr = await CreateFeeResp(fee);
+                lfr.Add(fr);
             }
             resp.code = 1;
             resp.message = "Thêm bản thu phí thành công";
@@ -319,7 +332,7 @@ namespace CNPM_BE.Services
             var feeResp = new FeeResp();
             var apartment = await _context.Apartment.FirstOrDefaultAsync(a => a.Id == fee.ApartmentId);
             var owner = await _context.Resident.FirstOrDefaultAsync(r => r.Id == apartment.OwnerId);
-            var serviceFeeList = await _context.ServiceFee.Where(f => f.FeeId == fee.Id && f.Status != ServiceFeeStatus.Deleted).ToListAsync();
+            var serviceFeeList = await _context.ServiceFee.Where(f => f.FeeId == fee.Id && f.Status != ServiceFeeStatus.Deleted).OrderBy(f => f.TypeId).ToListAsync();
             var paymentList = await _context.FeePayment.Where(f => f.FeeId == fee.Id && f.Status != FeePaymentStatus.Deleted).OrderBy(f => f.CreatedTime).ToListAsync();
             var vehicleList = await _context.Vehicle.Where(v => v.ApartmentId == fee.ApartmentId && v.Status != VehicleStatus.Deleted).ToListAsync();
             var list = new List<ServiceFeeResp>();
@@ -425,6 +438,12 @@ namespace CNPM_BE.Services
                 {
                     resp.code = -1;
                     resp.message = "Đã có lỗi xảy ra trong quá trình tìm kiếm bản thu phí";
+                    return resp;
+                }
+                if(fee.NewCount < fee.OldCount)
+                {
+                    resp.code = -1;
+                    resp.message = "Chỉ số mới không được nhỏ hơn chỉ số cũ";
                     return resp;
                 }
                 var type = await _context.ServiceFeeType.FirstOrDefaultAsync(s => s.Id == serviceFee.TypeId);

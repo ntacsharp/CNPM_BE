@@ -46,6 +46,11 @@ namespace CNPM_BE.Data
                 .HasForeignKey(x => x.CreatorId)
                 .IsRequired();
             modelBuilder.Entity<Vehicle>()
+                .HasOne<Apartment>()
+                .WithMany()
+                .HasForeignKey(x => x.ApartmentId)
+                .IsRequired();
+            modelBuilder.Entity<Vehicle>()
                 .HasOne<Resident>()
                 .WithMany()
                 .HasForeignKey(x => x.OwnerId)
